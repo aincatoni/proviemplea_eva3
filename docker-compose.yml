@@ -5,7 +5,7 @@ services:
       context: ./docker/php
     container_name: proviemplea_app
     volumes:
-      - ./src:/var/www/html
+      - ./backend:/var/www/html
     networks:
       - proviemplea_net
     depends_on:
@@ -16,7 +16,7 @@ services:
     ports:
       - "8080:80"
     volumes:
-      - ./src:/var/www/html
+      - ./backend:/var/www/html
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
     networks:
       - proviemplea_net
