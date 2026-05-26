@@ -3,63 +3,60 @@
 namespace App\Http\Controllers;
 
 use App\Models\Empresa;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class EmpresaController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(): JsonResponse
     {
-        //
+        return $this->successResponse(Empresa::all());
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(Request $request): JsonResponse
     {
-        //
+        $request->validate([
+            'nombre_empresa' => 'required|string',
+            'rut_empresa' => 'required|string|unique:empresas,rut_empresa',
+            'email' => 'required|email|unique:empresas,email',
+            'tipo_empresa' => 'required|string',
+            'contacto_nombre' => 'required|string',
+            'contacto_email' => 'required|email',
+        ]);
+
+        $empresa = Empresa::create($request->all());
+
+        return $this->successResponse($empresa, 201);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function show(Empresa $empresa): JsonResponse
     {
-        //
+        return $this->successResponse($empresa);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Empresa $empresa)
+    public function update(Request $request, Empresa $empresa): JsonResponse
     {
-        //
+        $request->validate([
+            'rut_empresa' => 'sometimes|string|unique:empresas,rut_empresa,'.$empresa->id,
+            'email' => 'sometimes|email|unique:empresas,email,'.$empresa->id,
+        ]);
+
+        $empresa->update($request->all());
+
+        return $this->successResponse($empresa);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Empresa $empresa)
+    public function destroy(Empresa $empresa): JsonResponse
     {
-        //
+        $empresa->delete();
+
+        return $this->successResponse(['message' => 'Empresa eliminada correctamente']);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Empresa $empresa)
+    public function validar(Empresa $empresa): JsonResponse
     {
-        //
-    }
+        $empresa->update(['validado' => true]);
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Empresa $empresa)
-    {
-        //
+        return $this->successResponse($empresa);
     }
 }
