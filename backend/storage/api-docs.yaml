@@ -1,0 +1,235 @@
+openapi: 3.0.0
+info:
+  title: ProviEmplea API
+  version: 1.0.0
+  description: API para conectar talentos con empresas
+servers:
+  - url: http://localhost
+    description: Local Server
+paths:
+  /health:
+    get:
+      operationId: healthCheck
+      tags:
+        - Health
+      summary: Verificar estado del servicio
+      responses:
+        '200':
+          description: Servicio operativo
+  /personas:
+    get:
+      operationId: getPersonas
+      tags:
+        - Personas
+      summary: Listar personas
+      responses:
+        '200':
+          description: Listado exitoso
+    post:
+      operationId: createPersona
+      tags:
+        - Personas
+      summary: Registrar nueva persona
+      responses:
+        '201':
+          description: Persona creada
+  /personas/{persona}:
+    get:
+      operationId: getPersona
+      tags:
+        - Personas
+      summary: Obtener persona por ID
+      parameters:
+        - name: persona
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Persona encontrada
+        '404':
+          description: No encontrada
+    put:
+      operationId: updatePersona
+      tags:
+        - Personas
+      summary: Actualizar persona
+      parameters:
+        - name: persona
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Persona actualizada
+    delete:
+      operationId: deletePersona
+      tags:
+        - Personas
+      summary: Desactivar persona
+      parameters:
+        - name: persona
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Persona desactivada
+  /personas/{persona}/validar:
+    patch:
+      operationId: validarPersona
+      tags:
+        - Personas
+      summary: Validar persona
+      parameters:
+        - name: persona
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Persona validada
+  /empresas:
+    get:
+      operationId: getEmpresas
+      tags:
+        - Empresas
+      summary: Listar empresas
+      responses:
+        '200':
+          description: Listado exitoso
+    post:
+      operationId: createEmpresa
+      tags:
+        - Empresas
+      summary: Registrar nueva empresa
+      responses:
+        '201':
+          description: Empresa creada
+  /empresas/{empresa}:
+    get:
+      operationId: getEmpresa
+      tags:
+        - Empresas
+      summary: Obtener empresa por ID
+      parameters:
+        - name: empresa
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Empresa encontrada
+    put:
+      operationId: updateEmpresa
+      tags:
+        - Empresas
+      summary: Actualizar empresa
+      parameters:
+        - name: empresa
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Empresa actualizada
+    delete:
+      operationId: deleteEmpresa
+      tags:
+        - Empresas
+      summary: Desactivar empresa
+      parameters:
+        - name: empresa
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Empresa desactivada
+  /empresas/{empresa}/validar:
+    patch:
+      operationId: validarEmpresa
+      tags:
+        - Empresas
+      summary: Validar empresa
+      parameters:
+        - name: empresa
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Empresa validada
+  /admin/contactos:
+    get:
+      operationId: getContactosSolicitados
+      tags:
+        - Administración
+      summary: Listar contactos solicitados
+      responses:
+        '200':
+          description: Listado exitoso
+    post:
+      operationId: crearContactoSolicitado
+      tags:
+        - Administración
+      summary: Registrar solicitud de contacto
+      responses:
+        '201':
+          description: Contacto registrado
+  /admin/contactos/{contacto}/estado:
+    patch:
+      operationId: actualizarEstadoContacto
+      tags:
+        - Administración
+      summary: Actualizar estado de contacto
+      parameters:
+        - name: contacto
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Estado actualizado
+  /admin/estadisticas:
+    get:
+      operationId: getEstadisticas
+      tags:
+        - Administración
+      summary: Estadísticas generales
+      responses:
+        '200':
+          description: Estadísticas generadas
+components:
+  schemas:
+    Persona:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+          format: email
+    Empresa:
+      type: object
+      properties:
+        id:
+          type: integer
+        nombre_empresa:
+          type: string
+    ContactoSolicitado:
+      type: object
+      properties:
+        id:
+          type: integer
+        estado:
+          type: string

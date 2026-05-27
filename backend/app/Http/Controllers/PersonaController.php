@@ -5,54 +5,242 @@ namespace App\Http\Controllers;
 use App\Models\Persona;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
+use OpenApi\Attributes as OA;
 
 class PersonaController extends Controller
 {
-    public function index(): JsonResponse
+    #[OA\Get(
+        path: '/personas',
+        operationId: 'getPersonas',
+        tags: ['Personas'],
+        summary: 'Listar personas (CV ciego)',
+        description: 'Obtiene talentos activos en formato de CV ciego (sin datos personales identificables).',
+        parameters: [
+            new OA\Parameter(name: 'validado', in: 'query', required: false, description: 'Filtrar por validación', schema: new OA\Schema(type: 'boolean')),
+            new OA\Parameter(name: 'nivel_educacional', in: 'query', required: false, schema: new OA\Schema(type: 'string', enum: ['basica', 'media', 'tecnica', 'universitaria', 'postgrado'])),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Listado exitoso',
+                content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/PersonaCVCiego'))
+            ),
+        ]
+    )]
+    public function index(Request $request): JsonResponse
     {
-        return $this->successResponse(Persona::all());
+        $query = Persona::where('activo', true);
+
+        if ($request->has('validado')) {
+            $query->where('validado', $request->boolean('validado'));
+        }
+        if ($request->has('nivel_educacional')) {
+            $query->where('nivel_educacional', $request->input('nivel_educacional'));
+        }
+
+        return $this->successResponse($query->get()->map(fn ($p) => $p->getCvCiego()));
     }
 
+    #[OA\Post(
+        path: '/personas',
+        operationId: 'createPersona',
+        tags: ['Personas'],
+        summary: 'Registrar nueva persona/talento',
+        description: 'Crea un perfil de talento. El código se genera automáticamente.',
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(ref: '#/components/schemas/PersonaInput')
+        ),
+        responses: [
+            new OA\Response(
+                response: 201,
+                description: 'Persona creada',
+                content: new OA\JsonContent(ref: '#/components/schemas/Persona')
+            ),
+            new OA\Response(response: 422, description: 'Errores de validación'),
+        ]
+    )]
     public function store(Request $request): JsonResponse
     {
-        $validated = $request->validate([
+        $validator = Validator::make($request->all(), [
             'email' => 'required|email|unique:personas,email',
-            'codigo_talento' => 'required|string|unique:personas,codigo_talento',
+            'telefono' => 'nullable|string|max:15',
+            'resumen' => 'nullable|string',
+            'nivel_educacional' => 'nullable|in:basica,media,tecnica,universitaria,postgrado',
+            'titulo_carrera' => 'nullable|string',
+            'anio_egreso' => 'nullable|integer|min:1950|max:'.date('Y'),
+            'anios_experiencia' => 'nullable|integer|min:0',
+            'areas_experiencia' => 'nullable|array',
+            'competencias' => 'nullable|array',
+            'rango_renta' => 'nullable|string',
+            'tipo_jornada' => 'nullable|in:completa,part-time,por-horas',
+            'modalidad' => 'nullable|in:presencial,remoto,hibrido',
+            'cursos' => 'nullable|array',
+            'idiomas' => 'nullable|array',
+            'portafolio_url' => 'nullable|url',
+            'persona_discapacidad' => 'nullable|boolean',
         ]);
 
-        $persona = Persona::create($request->all());
+        if ($validator->fails()) {
+            return $this->errorResponse('Los datos enviados no son válidos.', 422, $validator->errors()->toArray());
+        }
 
-        return $this->successResponse($persona, 201);
+        $data = $validator->validated();
+        $data['codigo_talento'] = $this->generarCodigoTalento();
+        $data['porcentaje_completitud'] = $this->calcularCompletitud($data);
+
+        return $this->successResponse(Persona::create($data), 201);
     }
 
-    public function show(Persona $persona): JsonResponse
+    #[OA\Get(
+        path: '/personas/{persona}',
+        operationId: 'getPersona',
+        tags: ['Personas'],
+        summary: 'Obtener persona por ID',
+        parameters: [
+            new OA\Parameter(name: 'persona', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Persona encontrada',
+                content: new OA\JsonContent(ref: '#/components/schemas/Persona')
+            ),
+            new OA\Response(response: 404, description: 'No encontrada'),
+        ]
+    )]
+    public function show(int $persona): JsonResponse
     {
-        return $this->successResponse($persona);
+        $model = Persona::find($persona);
+        if (! $model) {
+            return $this->errorResponse('Persona no encontrada.', 404);
+        }
+
+        return $this->successResponse($model);
     }
 
-    public function update(Request $request, Persona $persona): JsonResponse
+    #[OA\Put(
+        path: '/personas/{persona}',
+        operationId: 'updatePersona',
+        tags: ['Personas'],
+        summary: 'Actualizar persona',
+        parameters: [
+            new OA\Parameter(name: 'persona', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(ref: '#/components/schemas/PersonaInput')
+        ),
+        responses: [
+            new OA\Response(response: 200, description: 'Persona actualizada'),
+            new OA\Response(response: 404, description: 'No encontrada'),
+        ]
+    )]
+    public function update(Request $request, int $persona): JsonResponse
     {
-        $request->validate([
-            'email' => 'sometimes|email|unique:personas,email,'.$persona->id,
-            'codigo_talento' => 'sometimes|string|unique:personas,codigo_talento,'.$persona->id,
+        $model = Persona::find($persona);
+        if (! $model) {
+            return $this->errorResponse('Persona no encontrada.', 404);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'email' => 'sometimes|email|unique:personas,email,'.$model->id,
+            'telefono' => 'nullable|string|max:15',
+            'resumen' => 'nullable|string',
+            'nivel_educacional' => 'nullable|in:basica,media,tecnica,universitaria,postgrado',
+            'titulo_carrera' => 'nullable|string',
+            'anio_egreso' => 'nullable|integer|min:1950|max:'.date('Y'),
+            'anios_experiencia' => 'nullable|integer|min:0',
+            'areas_experiencia' => 'nullable|array',
+            'competencias' => 'nullable|array',
+            'rango_renta' => 'nullable|string',
+            'tipo_jornada' => 'nullable|in:completa,part-time,por-horas',
+            'modalidad' => 'nullable|in:presencial,remoto,hibrido',
+            'cursos' => 'nullable|array',
+            'idiomas' => 'nullable|array',
+            'portafolio_url' => 'nullable|url',
+            'persona_discapacidad' => 'nullable|boolean',
         ]);
 
-        $persona->update($request->all());
+        if ($validator->fails()) {
+            return $this->errorResponse('Los datos enviados no son válidos.', 422, $validator->errors()->toArray());
+        }
 
-        return $this->successResponse($persona);
+        $data = $validator->validated();
+        $data['porcentaje_completitud'] = $this->calcularCompletitud(array_merge($model->toArray(), $data));
+        $model->update($data);
+
+        return $this->successResponse($model->fresh());
     }
 
-    public function destroy(Persona $persona): JsonResponse
+    #[OA\Patch(
+        path: '/personas/{persona}/validar',
+        operationId: 'validarPersona',
+        tags: ['Personas'],
+        summary: 'Validar persona (solo administración)',
+        description: 'Marca a una persona como validada para que aparezca en la vitrina.',
+        parameters: [
+            new OA\Parameter(name: 'persona', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Persona validada'),
+            new OA\Response(response: 404, description: 'No encontrada'),
+        ]
+    )]
+    public function validar(int $persona): JsonResponse
     {
-        $persona->delete();
+        $model = Persona::find($persona);
+        if (! $model) {
+            return $this->errorResponse('Persona no encontrada.', 404);
+        }
+        $model->update(['validado' => true]);
 
-        return $this->successResponse(['message' => 'Persona eliminada correctamente']);
+        return $this->successResponse(['message' => 'Persona validada exitosamente.', 'data' => $model->fresh()]);
     }
 
-    public function validar(Persona $persona): JsonResponse
+    #[OA\Delete(
+        path: '/personas/{persona}',
+        operationId: 'deletePersona',
+        tags: ['Personas'],
+        summary: 'Desactivar persona',
+        description: 'Desactiva el perfil sin eliminarlo de la base de datos.',
+        parameters: [
+            new OA\Parameter(name: 'persona', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Persona desactivada'),
+            new OA\Response(response: 404, description: 'No encontrada'),
+        ]
+    )]
+    public function destroy(int $persona): JsonResponse
     {
-        $persona->update(['validado' => true]);
+        $model = Persona::find($persona);
+        if (! $model) {
+            return $this->errorResponse('Persona no encontrada.', 404);
+        }
+        $model->update(['activo' => false]);
 
-        return $this->successResponse($persona);
+        return $this->successResponse(['message' => 'Persona desactivada exitosamente.']);
+    }
+
+    private function generarCodigoTalento(): string
+    {
+        do {
+            $codigo = 'PROV-'.date('Y').'-'.strtoupper(Str::random(4));
+        } while (Persona::where('codigo_talento', $codigo)->exists());
+
+        return $codigo;
+    }
+
+    private function calcularCompletitud(array $data): int
+    {
+        $campos = ['email', 'telefono', 'resumen', 'nivel_educacional', 'titulo_carrera',
+            'anio_egreso', 'anios_experiencia', 'competencias', 'rango_renta',
+            'tipo_jornada', 'modalidad'];
+        $completados = count(array_filter($campos, fn ($c) => ! empty($data[$c])));
+
+        return (int) round(($completados / count($campos)) * 100);
     }
 }

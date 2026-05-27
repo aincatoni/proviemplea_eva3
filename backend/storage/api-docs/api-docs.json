@@ -1,0 +1,1234 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "ProviEmplea API",
+        "description": "API REST para la plataforma de empleo ProviEmplea de Providencia. Permite gestionar talentos, empresas y procesos de selección con curriculum ciego.",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8080/api",
+            "description": "Servidor de desarrollo local"
+        }
+    ],
+    "paths": {
+        "/admin/contactos": {
+            "get": {
+                "tags": [
+                    "Administración"
+                ],
+                "summary": "Listar contactos solicitados",
+                "operationId": "getContactosSolicitados",
+                "parameters": [
+                    {
+                        "name": "estado",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "pendiente",
+                                "contactado",
+                                "entrevista",
+                                "seleccionado",
+                                "no-seleccionado",
+                                "proceso-cerrado"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Listado exitoso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ContactoSolicitado"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Administración"
+                ],
+                "summary": "Registrar solicitud de contacto",
+                "description": "Una empresa solicita contactar a un talento. No puede existir una solicitud activa previa.",
+                "operationId": "crearContactoSolicitado",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ContactoSolicitadoInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Contacto registrado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ContactoSolicitado"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Ya existe una solicitud activa"
+                    },
+                    "422": {
+                        "description": "Errores de validación"
+                    }
+                }
+            }
+        },
+        "/admin/contactos/{contacto}/estado": {
+            "patch": {
+                "tags": [
+                    "Administración"
+                ],
+                "summary": "Actualizar estado de contacto",
+                "description": "Cambia el estado del proceso. Las fechas se registran automáticamente según el estado.",
+                "operationId": "actualizarEstadoContacto",
+                "parameters": [
+                    {
+                        "name": "contacto",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "estado"
+                                ],
+                                "properties": {
+                                    "estado": {
+                                        "type": "string",
+                                        "enum": [
+                                            "pendiente",
+                                            "contactado",
+                                            "entrevista",
+                                            "seleccionado",
+                                            "no-seleccionado",
+                                            "proceso-cerrado"
+                                        ]
+                                    },
+                                    "notas_admin": {
+                                        "type": "string",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Estado actualizado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ContactoSolicitado"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Contacto no encontrado"
+                    }
+                }
+            }
+        },
+        "/admin/estadisticas": {
+            "get": {
+                "tags": [
+                    "Administración"
+                ],
+                "summary": "Estadísticas generales de la plataforma",
+                "operationId": "getEstadisticas",
+                "responses": {
+                    "200": {
+                        "description": "Estadísticas generadas",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "total_personas": {
+                                            "type": "integer",
+                                            "example": 45
+                                        },
+                                        "personas_validadas": {
+                                            "type": "integer",
+                                            "example": 38
+                                        },
+                                        "total_empresas": {
+                                            "type": "integer",
+                                            "example": 12
+                                        },
+                                        "empresas_validadas": {
+                                            "type": "integer",
+                                            "example": 10
+                                        },
+                                        "contactos_pendientes": {
+                                            "type": "integer",
+                                            "example": 5
+                                        },
+                                        "contactos_en_proceso": {
+                                            "type": "integer",
+                                            "example": 8
+                                        },
+                                        "contactos_exitosos": {
+                                            "type": "integer",
+                                            "example": 15
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/empresas": {
+            "get": {
+                "tags": [
+                    "Empresas"
+                ],
+                "summary": "Listar empresas validadas",
+                "operationId": "getEmpresas",
+                "parameters": [
+                    {
+                        "name": "tipo_empresa",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "contratacion-directa",
+                                "est",
+                                "outsourcing"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Listado exitoso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Empresa"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Empresas"
+                ],
+                "summary": "Registrar nueva empresa",
+                "operationId": "createEmpresa",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EmpresaInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Empresa creada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Empresa"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Errores de validación"
+                    }
+                }
+            }
+        },
+        "/empresas/{empresa}": {
+            "get": {
+                "tags": [
+                    "Empresas"
+                ],
+                "summary": "Obtener empresa por ID",
+                "operationId": "getEmpresa",
+                "parameters": [
+                    {
+                        "name": "empresa",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Empresa encontrada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Empresa"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No encontrada"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Empresas"
+                ],
+                "summary": "Actualizar empresa",
+                "operationId": "updateEmpresa",
+                "parameters": [
+                    {
+                        "name": "empresa",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EmpresaInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Empresa actualizada"
+                    },
+                    "404": {
+                        "description": "No encontrada"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Empresas"
+                ],
+                "summary": "Desactivar empresa",
+                "description": "Desactiva el perfil sin eliminarlo de la base de datos.",
+                "operationId": "deleteEmpresa",
+                "parameters": [
+                    {
+                        "name": "empresa",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Empresa desactivada"
+                    },
+                    "404": {
+                        "description": "No encontrada"
+                    }
+                }
+            }
+        },
+        "/empresas/{empresa}/validar": {
+            "patch": {
+                "tags": [
+                    "Empresas"
+                ],
+                "summary": "Validar empresa (solo administración)",
+                "operationId": "validarEmpresa",
+                "parameters": [
+                    {
+                        "name": "empresa",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Empresa validada"
+                    },
+                    "404": {
+                        "description": "No encontrada"
+                    }
+                }
+            }
+        },
+        "/health": {
+            "get": {
+                "tags": [
+                    "Health"
+                ],
+                "summary": "Verificar estado del servicio",
+                "description": "Endpoint de observabilidad. Verifica que la API está disponible.",
+                "operationId": "healthCheck",
+                "responses": {
+                    "200": {
+                        "description": "Servicio operativo",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                },
+                                "example": {
+                                    "status": "online",
+                                    "service": "ProviEmplea API",
+                                    "version": "1.0.0",
+                                    "timestamp": "2026-05-21T10:30:00+00:00"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/personas": {
+            "get": {
+                "tags": [
+                    "Personas"
+                ],
+                "summary": "Listar personas (CV ciego)",
+                "description": "Obtiene talentos activos en formato de CV ciego (sin datos personales identificables).",
+                "operationId": "getPersonas",
+                "parameters": [
+                    {
+                        "name": "validado",
+                        "in": "query",
+                        "description": "Filtrar por validación",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "nivel_educacional",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "basica",
+                                "media",
+                                "tecnica",
+                                "universitaria",
+                                "postgrado"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Listado exitoso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/PersonaCVCiego"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Personas"
+                ],
+                "summary": "Registrar nueva persona/talento",
+                "description": "Crea un perfil de talento. El código se genera automáticamente.",
+                "operationId": "createPersona",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PersonaInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Persona creada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Persona"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Errores de validación"
+                    }
+                }
+            }
+        },
+        "/personas/{persona}": {
+            "get": {
+                "tags": [
+                    "Personas"
+                ],
+                "summary": "Obtener persona por ID",
+                "operationId": "getPersona",
+                "parameters": [
+                    {
+                        "name": "persona",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Persona encontrada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Persona"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No encontrada"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Personas"
+                ],
+                "summary": "Actualizar persona",
+                "operationId": "updatePersona",
+                "parameters": [
+                    {
+                        "name": "persona",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PersonaInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Persona actualizada"
+                    },
+                    "404": {
+                        "description": "No encontrada"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Personas"
+                ],
+                "summary": "Desactivar persona",
+                "description": "Desactiva el perfil sin eliminarlo de la base de datos.",
+                "operationId": "deletePersona",
+                "parameters": [
+                    {
+                        "name": "persona",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Persona desactivada"
+                    },
+                    "404": {
+                        "description": "No encontrada"
+                    }
+                }
+            }
+        },
+        "/personas/{persona}/validar": {
+            "patch": {
+                "tags": [
+                    "Personas"
+                ],
+                "summary": "Validar persona (solo administración)",
+                "description": "Marca a una persona como validada para que aparezca en la vitrina.",
+                "operationId": "validarPersona",
+                "parameters": [
+                    {
+                        "name": "persona",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Persona validada"
+                    },
+                    "404": {
+                        "description": "No encontrada"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "ContactoSolicitado": {
+                "title": "Contacto Solicitado",
+                "description": "Solicitud de contacto entre empresa y talento",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "empresa_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "persona_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "estado": {
+                        "type": "string",
+                        "example": "pendiente",
+                        "enum": [
+                            "pendiente",
+                            "contactado",
+                            "entrevista",
+                            "seleccionado",
+                            "no-seleccionado",
+                            "proceso-cerrado"
+                        ]
+                    },
+                    "notas_admin": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "fecha_contacto": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "fecha_entrevista": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "fecha_resultado": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "empresa": {
+                        "$ref": "#/components/schemas/Empresa"
+                    },
+                    "persona": {
+                        "$ref": "#/components/schemas/Persona"
+                    }
+                },
+                "type": "object"
+            },
+            "ContactoSolicitadoInput": {
+                "title": "Contacto Solicitado Input",
+                "required": [
+                    "empresa_id",
+                    "persona_id"
+                ],
+                "properties": {
+                    "empresa_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "persona_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "notas_admin": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "Empresa": {
+                "title": "Empresa",
+                "description": "Modelo completo de empresa empleadora",
+                "required": [
+                    "nombre_empresa",
+                    "rut_empresa",
+                    "email",
+                    "tipo_empresa",
+                    "contacto_nombre",
+                    "contacto_email"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "nombre_empresa": {
+                        "type": "string",
+                        "example": "TechCorp SpA"
+                    },
+                    "rut_empresa": {
+                        "type": "string",
+                        "example": "76123456-7"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "rrhh@techcorp.cl"
+                    },
+                    "logo_url": {
+                        "type": "string",
+                        "format": "url",
+                        "nullable": true
+                    },
+                    "rubro": {
+                        "type": "string",
+                        "example": "Tecnología",
+                        "nullable": true
+                    },
+                    "tipo_empresa": {
+                        "type": "string",
+                        "enum": [
+                            "contratacion-directa",
+                            "est",
+                            "outsourcing"
+                        ]
+                    },
+                    "presentacion": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "beneficios": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "example": [
+                            "Seguro complementario",
+                            "Trabajo remoto"
+                        ],
+                        "nullable": true
+                    },
+                    "contacto_nombre": {
+                        "type": "string",
+                        "example": "Ana López"
+                    },
+                    "contacto_email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "ana@techcorp.cl"
+                    },
+                    "contacto_telefono": {
+                        "type": "string",
+                        "example": "+56912345678",
+                        "nullable": true
+                    },
+                    "validado": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "activo": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "EmpresaInput": {
+                "title": "Empresa Input",
+                "description": "Datos para crear o actualizar una empresa",
+                "required": [
+                    "nombre_empresa",
+                    "rut_empresa",
+                    "email",
+                    "tipo_empresa",
+                    "contacto_nombre",
+                    "contacto_email"
+                ],
+                "properties": {
+                    "nombre_empresa": {
+                        "type": "string",
+                        "example": "TechCorp SpA"
+                    },
+                    "rut_empresa": {
+                        "type": "string",
+                        "example": "76123456-7"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "rrhh@techcorp.cl"
+                    },
+                    "logo_url": {
+                        "type": "string",
+                        "format": "url",
+                        "nullable": true
+                    },
+                    "rubro": {
+                        "type": "string",
+                        "example": "Tecnología",
+                        "nullable": true
+                    },
+                    "tipo_empresa": {
+                        "type": "string",
+                        "enum": [
+                            "contratacion-directa",
+                            "est",
+                            "outsourcing"
+                        ]
+                    },
+                    "presentacion": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "beneficios": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "nullable": true
+                    },
+                    "contacto_nombre": {
+                        "type": "string",
+                        "example": "Ana López"
+                    },
+                    "contacto_email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "ana@techcorp.cl"
+                    },
+                    "contacto_telefono": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "Persona": {
+                "title": "Persona",
+                "description": "Modelo completo de persona/talento",
+                "required": [
+                    "email",
+                    "codigo_talento"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "juan@example.com"
+                    },
+                    "telefono": {
+                        "type": "string",
+                        "example": "+56912345678",
+                        "nullable": true
+                    },
+                    "codigo_talento": {
+                        "type": "string",
+                        "example": "PROV-2026-A1B2"
+                    },
+                    "resumen": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "nivel_educacional": {
+                        "type": "string",
+                        "nullable": true,
+                        "enum": [
+                            "basica",
+                            "media",
+                            "tecnica",
+                            "universitaria",
+                            "postgrado"
+                        ]
+                    },
+                    "titulo_carrera": {
+                        "type": "string",
+                        "example": "Ingeniero en Informática",
+                        "nullable": true
+                    },
+                    "anio_egreso": {
+                        "type": "integer",
+                        "example": 2019,
+                        "nullable": true
+                    },
+                    "anios_experiencia": {
+                        "type": "integer",
+                        "example": 5
+                    },
+                    "areas_experiencia": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "example": [
+                            "Desarrollo Web",
+                            "APIs REST"
+                        ],
+                        "nullable": true
+                    },
+                    "competencias": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "example": [
+                            "PHP",
+                            "Laravel",
+                            "MySQL"
+                        ],
+                        "nullable": true
+                    },
+                    "rango_renta": {
+                        "type": "string",
+                        "example": "800k-1.2M",
+                        "nullable": true
+                    },
+                    "tipo_jornada": {
+                        "type": "string",
+                        "nullable": true,
+                        "enum": [
+                            "completa",
+                            "part-time",
+                            "por-horas"
+                        ]
+                    },
+                    "modalidad": {
+                        "type": "string",
+                        "nullable": true,
+                        "enum": [
+                            "presencial",
+                            "remoto",
+                            "hibrido"
+                        ]
+                    },
+                    "cursos": {
+                        "type": "array",
+                        "items": {
+                            "properties": {
+                                "nombre": {
+                                    "type": "string"
+                                },
+                                "institucion": {
+                                    "type": "string"
+                                },
+                                "anio": {
+                                    "type": "integer"
+                                }
+                            },
+                            "type": "object"
+                        },
+                        "nullable": true
+                    },
+                    "idiomas": {
+                        "type": "array",
+                        "items": {
+                            "properties": {
+                                "idioma": {
+                                    "type": "string"
+                                },
+                                "nivel": {
+                                    "type": "string",
+                                    "enum": [
+                                        "basico",
+                                        "intermedio",
+                                        "avanzado",
+                                        "nativo"
+                                    ]
+                                }
+                            },
+                            "type": "object"
+                        },
+                        "nullable": true
+                    },
+                    "portafolio_url": {
+                        "type": "string",
+                        "format": "url",
+                        "nullable": true
+                    },
+                    "persona_discapacidad": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "validado": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "activo": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "porcentaje_completitud": {
+                        "type": "integer",
+                        "example": 85
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "PersonaInput": {
+                "title": "Persona Input",
+                "description": "Datos para crear o actualizar una persona",
+                "required": [
+                    "email"
+                ],
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "juan@example.com"
+                    },
+                    "telefono": {
+                        "type": "string",
+                        "example": "+56912345678",
+                        "nullable": true
+                    },
+                    "resumen": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "nivel_educacional": {
+                        "type": "string",
+                        "nullable": true,
+                        "enum": [
+                            "basica",
+                            "media",
+                            "tecnica",
+                            "universitaria",
+                            "postgrado"
+                        ]
+                    },
+                    "titulo_carrera": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "anio_egreso": {
+                        "type": "integer",
+                        "example": 2020,
+                        "nullable": true
+                    },
+                    "anios_experiencia": {
+                        "type": "integer",
+                        "example": 3,
+                        "nullable": true
+                    },
+                    "areas_experiencia": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "example": [
+                            "Desarrollo Web"
+                        ],
+                        "nullable": true
+                    },
+                    "competencias": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "example": [
+                            "PHP",
+                            "Laravel"
+                        ],
+                        "nullable": true
+                    },
+                    "rango_renta": {
+                        "type": "string",
+                        "example": "500k-800k",
+                        "nullable": true
+                    },
+                    "tipo_jornada": {
+                        "type": "string",
+                        "nullable": true,
+                        "enum": [
+                            "completa",
+                            "part-time",
+                            "por-horas"
+                        ]
+                    },
+                    "modalidad": {
+                        "type": "string",
+                        "nullable": true,
+                        "enum": [
+                            "presencial",
+                            "remoto",
+                            "hibrido"
+                        ]
+                    },
+                    "persona_discapacidad": {
+                        "type": "boolean",
+                        "example": false,
+                        "nullable": true
+                    },
+                    "portafolio_url": {
+                        "type": "string",
+                        "format": "url",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "PersonaCVCiego": {
+                "title": "Persona CV Ciego",
+                "description": "Vista pública del talento sin datos personales identificables",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "550e8400-e29b-41d4-a716-446655440000"
+                    },
+                    "codigo_talento": {
+                        "type": "string",
+                        "example": "PROV-2026-A1B2"
+                    },
+                    "resumen": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "nivel_educacional": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "titulo_carrera": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "anio_egreso": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "anios_experiencia": {
+                        "type": "integer",
+                        "example": 5
+                    },
+                    "tipo_jornada": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "modalidad": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "persona_discapacidad": {
+                        "type": "boolean",
+                        "example": false
+                    }
+                },
+                "type": "object"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Health",
+            "description": "Endpoints de salud del sistema"
+        },
+        {
+            "name": "Personas",
+            "description": "Gestión de perfiles de talentos/vecinos"
+        },
+        {
+            "name": "Empresas",
+            "description": "Gestión de empresas empleadoras"
+        },
+        {
+            "name": "Administración",
+            "description": "Gestión administrativa y seguimiento"
+        }
+    ]
+}
