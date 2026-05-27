@@ -18,6 +18,7 @@
                     "Administración"
                 ],
                 "summary": "Listar contactos solicitados",
+                "description": "Consulta administrativa de lectura. Rate limit: 60 solicitudes por minuto por IP.",
                 "operationId": "getContactosSolicitados",
                 "parameters": [
                     {
@@ -43,10 +44,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/ContactoSolicitado"
-                                    }
+                                    "$ref": "#/components/schemas/ContactoSolicitadoListResponse"
                                 }
                             }
                         }
@@ -58,7 +56,7 @@
                     "Administración"
                 ],
                 "summary": "Registrar solicitud de contacto",
-                "description": "Una empresa solicita contactar a un talento. No puede existir una solicitud activa previa.",
+                "description": "Una empresa solicita contactar a un talento. No puede existir una solicitud activa previa. Rate limit: 20 solicitudes por minuto por IP.",
                 "operationId": "crearContactoSolicitado",
                 "requestBody": {
                     "required": true,
@@ -76,16 +74,30 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ContactoSolicitado"
+                                    "$ref": "#/components/schemas/ContactoSolicitadoResponse"
                                 }
                             }
                         }
                     },
                     "409": {
-                        "description": "Ya existe una solicitud activa"
+                        "description": "Ya existe una solicitud activa",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
                     },
                     "422": {
-                        "description": "Errores de validación"
+                        "description": "Errores de validación",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -96,7 +108,7 @@
                     "Administración"
                 ],
                 "summary": "Actualizar estado de contacto",
-                "description": "Cambia el estado del proceso. Las fechas se registran automáticamente según el estado.",
+                "description": "Cambia el estado del proceso. Las fechas se registran automáticamente según el estado. Rate limit: 20 solicitudes por minuto por IP.",
                 "operationId": "actualizarEstadoContacto",
                 "parameters": [
                     {
@@ -146,13 +158,30 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ContactoSolicitado"
+                                    "$ref": "#/components/schemas/ContactoSolicitadoResponse"
                                 }
                             }
                         }
                     },
                     "404": {
-                        "description": "Contacto no encontrado"
+                        "description": "Contacto no encontrado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Errores de validación",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -163,6 +192,7 @@
                     "Administración"
                 ],
                 "summary": "Estadísticas generales de la plataforma",
+                "description": "Dashboard resumido de la plataforma. Rate limit: 60 solicitudes por minuto por IP. Respuesta con Cache-Control de 30 segundos por tratarse de métricas agregadas.",
                 "operationId": "getEstadisticas",
                 "responses": {
                     "200": {
@@ -170,37 +200,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "total_personas": {
-                                            "type": "integer",
-                                            "example": 45
-                                        },
-                                        "personas_validadas": {
-                                            "type": "integer",
-                                            "example": 38
-                                        },
-                                        "total_empresas": {
-                                            "type": "integer",
-                                            "example": 12
-                                        },
-                                        "empresas_validadas": {
-                                            "type": "integer",
-                                            "example": 10
-                                        },
-                                        "contactos_pendientes": {
-                                            "type": "integer",
-                                            "example": 5
-                                        },
-                                        "contactos_en_proceso": {
-                                            "type": "integer",
-                                            "example": 8
-                                        },
-                                        "contactos_exitosos": {
-                                            "type": "integer",
-                                            "example": 15
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/EstadisticasResponse"
                                 }
                             }
                         }
@@ -214,6 +214,7 @@
                     "Empresas"
                 ],
                 "summary": "Listar empresas validadas",
+                "description": "Obtiene empresas activas. Rate limit: 120 solicitudes por minuto por IP. Se recomienda filtrar por tipo cuando se integre desde clientes externos.",
                 "operationId": "getEmpresas",
                 "parameters": [
                     {
@@ -236,10 +237,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/Empresa"
-                                    }
+                                    "$ref": "#/components/schemas/EmpresaListResponse"
                                 }
                             }
                         }
@@ -268,13 +266,20 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Empresa"
+                                    "$ref": "#/components/schemas/EmpresaResponse"
                                 }
                             }
                         }
                     },
                     "422": {
-                        "description": "Errores de validación"
+                        "description": "Errores de validación",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -285,6 +290,7 @@
                     "Empresas"
                 ],
                 "summary": "Obtener empresa por ID",
+                "description": "Consulta de lectura con rate limit de 120 solicitudes por minuto por IP.",
                 "operationId": "getEmpresa",
                 "parameters": [
                     {
@@ -304,13 +310,20 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Empresa"
+                                    "$ref": "#/components/schemas/EmpresaResponse"
                                 }
                             }
                         }
                     },
                     "404": {
-                        "description": "No encontrada"
+                        "description": "No encontrada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
                     }
                 }
             },
@@ -344,10 +357,34 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Empresa actualizada"
+                        "description": "Empresa actualizada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EmpresaResponse"
+                                }
+                            }
+                        }
                     },
                     "404": {
-                        "description": "No encontrada"
+                        "description": "No encontrada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Errores de validación",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
                     }
                 }
             },
@@ -356,7 +393,7 @@
                     "Empresas"
                 ],
                 "summary": "Desactivar empresa",
-                "description": "Desactiva el perfil sin eliminarlo de la base de datos.",
+                "description": "Desactiva el perfil sin eliminarlo de la base de datos. Rate limit: 30 solicitudes por minuto por IP.",
                 "operationId": "deleteEmpresa",
                 "parameters": [
                     {
@@ -372,10 +409,24 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Empresa desactivada"
+                        "description": "Empresa desactivada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MessageResponse"
+                                }
+                            }
+                        }
                     },
                     "404": {
-                        "description": "No encontrada"
+                        "description": "No encontrada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -386,6 +437,7 @@
                     "Empresas"
                 ],
                 "summary": "Validar empresa (solo administración)",
+                "description": "Marca una empresa como validada. Rate limit: 30 solicitudes por minuto por IP.",
                 "operationId": "validarEmpresa",
                 "parameters": [
                     {
@@ -401,10 +453,24 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Empresa validada"
+                        "description": "Empresa validada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EmpresaValidationResponse"
+                                }
+                            }
+                        }
                     },
                     "404": {
-                        "description": "No encontrada"
+                        "description": "No encontrada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -415,7 +481,7 @@
                     "Health"
                 ],
                 "summary": "Verificar estado del servicio",
-                "description": "Endpoint de observabilidad. Verifica que la API está disponible.",
+                "description": "Endpoint de observabilidad. Verifica que la API está disponible. Tiene un rate limit de 120 solicitudes por minuto por IP y encabezado Cache-Control de 15 segundos para reducir consultas repetidas.",
                 "operationId": "healthCheck",
                 "responses": {
                     "200": {
@@ -443,7 +509,7 @@
                     "Personas"
                 ],
                 "summary": "Listar personas (CV ciego)",
-                "description": "Obtiene talentos activos en formato de CV ciego (sin datos personales identificables).",
+                "description": "Obtiene talentos activos en formato de CV ciego (sin datos personales identificables). Rate limit: 120 solicitudes por minuto por IP. Se recomienda aplicar filtros para reducir payload y paginar si el volumen crece.",
                 "operationId": "getPersonas",
                 "parameters": [
                     {
@@ -477,10 +543,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/PersonaCVCiego"
-                                    }
+                                    "$ref": "#/components/schemas/PersonaListResponse"
                                 }
                             }
                         }
@@ -510,13 +573,20 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Persona"
+                                    "$ref": "#/components/schemas/PersonaResponse"
                                 }
                             }
                         }
                     },
                     "422": {
-                        "description": "Errores de validación"
+                        "description": "Errores de validación",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -527,6 +597,7 @@
                     "Personas"
                 ],
                 "summary": "Obtener persona por ID",
+                "description": "Consulta de lectura con rate limit de 120 solicitudes por minuto por IP.",
                 "operationId": "getPersona",
                 "parameters": [
                     {
@@ -546,13 +617,20 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Persona"
+                                    "$ref": "#/components/schemas/PersonaResponse"
                                 }
                             }
                         }
                     },
                     "404": {
-                        "description": "No encontrada"
+                        "description": "No encontrada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
                     }
                 }
             },
@@ -586,10 +664,34 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Persona actualizada"
+                        "description": "Persona actualizada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PersonaResponse"
+                                }
+                            }
+                        }
                     },
                     "404": {
-                        "description": "No encontrada"
+                        "description": "No encontrada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Errores de validación",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
                     }
                 }
             },
@@ -598,7 +700,7 @@
                     "Personas"
                 ],
                 "summary": "Desactivar persona",
-                "description": "Desactiva el perfil sin eliminarlo de la base de datos.",
+                "description": "Desactiva el perfil sin eliminarlo de la base de datos. Rate limit: 30 solicitudes por minuto por IP.",
                 "operationId": "deletePersona",
                 "parameters": [
                     {
@@ -614,10 +716,24 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Persona desactivada"
+                        "description": "Persona desactivada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MessageResponse"
+                                }
+                            }
+                        }
                     },
                     "404": {
-                        "description": "No encontrada"
+                        "description": "No encontrada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -628,7 +744,7 @@
                     "Personas"
                 ],
                 "summary": "Validar persona (solo administración)",
-                "description": "Marca a una persona como validada para que aparezca en la vitrina.",
+                "description": "Marca a una persona como validada para que aparezca en la vitrina. Rate limit: 30 solicitudes por minuto por IP.",
                 "operationId": "validarPersona",
                 "parameters": [
                     {
@@ -644,10 +760,24 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Persona validada"
+                        "description": "Persona validada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PersonaValidationResponse"
+                                }
+                            }
+                        }
                     },
                     "404": {
-                        "description": "No encontrada"
+                        "description": "No encontrada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -1232,6 +1362,309 @@
                     "persona_discapacidad": {
                         "type": "boolean",
                         "example": false
+                    }
+                },
+                "type": "object"
+            },
+            "ErrorResponse": {
+                "title": "Error Response",
+                "description": "Respuesta estándar de error de la API",
+                "required": [
+                    "success",
+                    "message"
+                ],
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "Recurso no encontrado."
+                    },
+                    "errors": {
+                        "type": "object",
+                        "example": {
+                            "email": [
+                                "El campo email es obligatorio."
+                            ]
+                        },
+                        "nullable": true,
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "ActionMessage": {
+                "title": "Action Message",
+                "required": [
+                    "message"
+                ],
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "example": "Persona desactivada exitosamente."
+                    }
+                },
+                "type": "object"
+            },
+            "PersonaValidationResult": {
+                "title": "Persona Validation Result",
+                "required": [
+                    "message",
+                    "data"
+                ],
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "example": "Persona validada exitosamente."
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/Persona"
+                    }
+                },
+                "type": "object"
+            },
+            "EmpresaValidationResult": {
+                "title": "Empresa Validation Result",
+                "required": [
+                    "message",
+                    "data"
+                ],
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "example": "Empresa validada exitosamente."
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/Empresa"
+                    }
+                },
+                "type": "object"
+            },
+            "Estadisticas": {
+                "title": "Estadísticas",
+                "required": [
+                    "total_personas",
+                    "personas_validadas",
+                    "total_empresas",
+                    "empresas_validadas",
+                    "contactos_pendientes",
+                    "contactos_en_proceso",
+                    "contactos_exitosos"
+                ],
+                "properties": {
+                    "total_personas": {
+                        "type": "integer",
+                        "example": 45
+                    },
+                    "personas_validadas": {
+                        "type": "integer",
+                        "example": 38
+                    },
+                    "total_empresas": {
+                        "type": "integer",
+                        "example": 12
+                    },
+                    "empresas_validadas": {
+                        "type": "integer",
+                        "example": 10
+                    },
+                    "contactos_pendientes": {
+                        "type": "integer",
+                        "example": 5
+                    },
+                    "contactos_en_proceso": {
+                        "type": "integer",
+                        "example": 8
+                    },
+                    "contactos_exitosos": {
+                        "type": "integer",
+                        "example": 15
+                    }
+                },
+                "type": "object"
+            },
+            "PersonaListResponse": {
+                "title": "Persona List Response",
+                "required": [
+                    "success",
+                    "data"
+                ],
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PersonaCVCiego"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "PersonaResponse": {
+                "title": "Persona Response",
+                "required": [
+                    "success",
+                    "data"
+                ],
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/Persona"
+                    }
+                },
+                "type": "object"
+            },
+            "PersonaValidationResponse": {
+                "title": "Persona Validation Response",
+                "required": [
+                    "success",
+                    "data"
+                ],
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/PersonaValidationResult"
+                    }
+                },
+                "type": "object"
+            },
+            "MessageResponse": {
+                "title": "Message Response",
+                "required": [
+                    "success",
+                    "data"
+                ],
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/ActionMessage"
+                    }
+                },
+                "type": "object"
+            },
+            "EmpresaListResponse": {
+                "title": "Empresa List Response",
+                "required": [
+                    "success",
+                    "data"
+                ],
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Empresa"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "EmpresaResponse": {
+                "title": "Empresa Response",
+                "required": [
+                    "success",
+                    "data"
+                ],
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/Empresa"
+                    }
+                },
+                "type": "object"
+            },
+            "EmpresaValidationResponse": {
+                "title": "Empresa Validation Response",
+                "required": [
+                    "success",
+                    "data"
+                ],
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/EmpresaValidationResult"
+                    }
+                },
+                "type": "object"
+            },
+            "ContactoSolicitadoListResponse": {
+                "title": "Contacto Solicitado List Response",
+                "required": [
+                    "success",
+                    "data"
+                ],
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ContactoSolicitado"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "ContactoSolicitadoResponse": {
+                "title": "Contacto Solicitado Response",
+                "required": [
+                    "success",
+                    "data"
+                ],
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/ContactoSolicitado"
+                    }
+                },
+                "type": "object"
+            },
+            "EstadisticasResponse": {
+                "title": "Estadísticas Response",
+                "required": [
+                    "success",
+                    "data"
+                ],
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/Estadisticas"
                     }
                 },
                 "type": "object"

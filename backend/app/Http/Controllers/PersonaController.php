@@ -16,7 +16,7 @@ class PersonaController extends Controller
         operationId: 'getPersonas',
         tags: ['Personas'],
         summary: 'Listar personas (CV ciego)',
-        description: 'Obtiene talentos activos en formato de CV ciego (sin datos personales identificables).',
+        description: 'Obtiene talentos activos en formato de CV ciego (sin datos personales identificables). Rate limit: 120 solicitudes por minuto por IP. Se recomienda aplicar filtros para reducir payload y paginar si el volumen crece.',
         parameters: [
             new OA\Parameter(name: 'validado', in: 'query', required: false, description: 'Filtrar por validación', schema: new OA\Schema(type: 'boolean')),
             new OA\Parameter(name: 'nivel_educacional', in: 'query', required: false, schema: new OA\Schema(type: 'string', enum: ['basica', 'media', 'tecnica', 'universitaria', 'postgrado'])),
@@ -25,7 +25,7 @@ class PersonaController extends Controller
             new OA\Response(
                 response: 200,
                 description: 'Listado exitoso',
-                content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/PersonaCVCiego'))
+                content: new OA\JsonContent(ref: '#/components/schemas/PersonaListResponse')
             ),
         ]
     )]
@@ -57,9 +57,13 @@ class PersonaController extends Controller
             new OA\Response(
                 response: 201,
                 description: 'Persona creada',
-                content: new OA\JsonContent(ref: '#/components/schemas/Persona')
+                content: new OA\JsonContent(ref: '#/components/schemas/PersonaResponse')
             ),
-            new OA\Response(response: 422, description: 'Errores de validación'),
+            new OA\Response(
+                response: 422,
+                description: 'Errores de validación',
+                content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
+            ),
         ]
     )]
     public function store(Request $request): JsonResponse
@@ -99,6 +103,7 @@ class PersonaController extends Controller
         operationId: 'getPersona',
         tags: ['Personas'],
         summary: 'Obtener persona por ID',
+        description: 'Consulta de lectura con rate limit de 120 solicitudes por minuto por IP.',
         parameters: [
             new OA\Parameter(name: 'persona', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'), example: '550e8400-e29b-41d4-a716-446655440000'),
         ],
@@ -106,9 +111,13 @@ class PersonaController extends Controller
             new OA\Response(
                 response: 200,
                 description: 'Persona encontrada',
-                content: new OA\JsonContent(ref: '#/components/schemas/Persona')
+                content: new OA\JsonContent(ref: '#/components/schemas/PersonaResponse')
             ),
-            new OA\Response(response: 404, description: 'No encontrada'),
+            new OA\Response(
+                response: 404,
+                description: 'No encontrada',
+                content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
+            ),
         ]
     )]
     public function show(string $persona): JsonResponse
@@ -134,8 +143,21 @@ class PersonaController extends Controller
             content: new OA\JsonContent(ref: '#/components/schemas/PersonaInput')
         ),
         responses: [
-            new OA\Response(response: 200, description: 'Persona actualizada'),
-            new OA\Response(response: 404, description: 'No encontrada'),
+            new OA\Response(
+                response: 200,
+                description: 'Persona actualizada',
+                content: new OA\JsonContent(ref: '#/components/schemas/PersonaResponse')
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'No encontrada',
+                content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
+            ),
+            new OA\Response(
+                response: 422,
+                description: 'Errores de validación',
+                content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
+            ),
         ]
     )]
     public function update(Request $request, string $persona): JsonResponse
@@ -180,13 +202,21 @@ class PersonaController extends Controller
         operationId: 'validarPersona',
         tags: ['Personas'],
         summary: 'Validar persona (solo administración)',
-        description: 'Marca a una persona como validada para que aparezca en la vitrina.',
+        description: 'Marca a una persona como validada para que aparezca en la vitrina. Rate limit: 30 solicitudes por minuto por IP.',
         parameters: [
             new OA\Parameter(name: 'persona', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'), example: '550e8400-e29b-41d4-a716-446655440000'),
         ],
         responses: [
-            new OA\Response(response: 200, description: 'Persona validada'),
-            new OA\Response(response: 404, description: 'No encontrada'),
+            new OA\Response(
+                response: 200,
+                description: 'Persona validada',
+                content: new OA\JsonContent(ref: '#/components/schemas/PersonaValidationResponse')
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'No encontrada',
+                content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
+            ),
         ]
     )]
     public function validar(string $persona): JsonResponse
@@ -205,13 +235,21 @@ class PersonaController extends Controller
         operationId: 'deletePersona',
         tags: ['Personas'],
         summary: 'Desactivar persona',
-        description: 'Desactiva el perfil sin eliminarlo de la base de datos.',
+        description: 'Desactiva el perfil sin eliminarlo de la base de datos. Rate limit: 30 solicitudes por minuto por IP.',
         parameters: [
             new OA\Parameter(name: 'persona', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'), example: '550e8400-e29b-41d4-a716-446655440000'),
         ],
         responses: [
-            new OA\Response(response: 200, description: 'Persona desactivada'),
-            new OA\Response(response: 404, description: 'No encontrada'),
+            new OA\Response(
+                response: 200,
+                description: 'Persona desactivada',
+                content: new OA\JsonContent(ref: '#/components/schemas/MessageResponse')
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'No encontrada',
+                content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
+            ),
         ]
     )]
     public function destroy(string $persona): JsonResponse

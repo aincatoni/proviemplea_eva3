@@ -17,6 +17,7 @@ class AdministracionController extends Controller
         operationId: 'getContactosSolicitados',
         tags: ['Administración'],
         summary: 'Listar contactos solicitados',
+        description: 'Consulta administrativa de lectura. Rate limit: 60 solicitudes por minuto por IP.',
         parameters: [
             new OA\Parameter(name: 'estado', in: 'query', required: false, schema: new OA\Schema(type: 'string', enum: ['pendiente', 'contactado', 'entrevista', 'seleccionado', 'no-seleccionado', 'proceso-cerrado'])),
         ],
@@ -24,7 +25,7 @@ class AdministracionController extends Controller
             new OA\Response(
                 response: 200,
                 description: 'Listado exitoso',
-                content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/ContactoSolicitado'))
+                content: new OA\JsonContent(ref: '#/components/schemas/ContactoSolicitadoListResponse')
             ),
         ]
     )]
@@ -43,7 +44,7 @@ class AdministracionController extends Controller
         operationId: 'crearContactoSolicitado',
         tags: ['Administración'],
         summary: 'Registrar solicitud de contacto',
-        description: 'Una empresa solicita contactar a un talento. No puede existir una solicitud activa previa.',
+        description: 'Una empresa solicita contactar a un talento. No puede existir una solicitud activa previa. Rate limit: 20 solicitudes por minuto por IP.',
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(ref: '#/components/schemas/ContactoSolicitadoInput')
@@ -52,10 +53,18 @@ class AdministracionController extends Controller
             new OA\Response(
                 response: 201,
                 description: 'Contacto registrado',
-                content: new OA\JsonContent(ref: '#/components/schemas/ContactoSolicitado')
+                content: new OA\JsonContent(ref: '#/components/schemas/ContactoSolicitadoResponse')
             ),
-            new OA\Response(response: 409, description: 'Ya existe una solicitud activa'),
-            new OA\Response(response: 422, description: 'Errores de validación'),
+            new OA\Response(
+                response: 409,
+                description: 'Ya existe una solicitud activa',
+                content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
+            ),
+            new OA\Response(
+                response: 422,
+                description: 'Errores de validación',
+                content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
+            ),
         ]
     )]
     public function crearContacto(Request $request): JsonResponse
@@ -81,7 +90,7 @@ class AdministracionController extends Controller
 
         $contacto = ContactoSolicitado::create($validator->validated());
 
-        return $this->successResponse($contacto->load(['empresa', 'persona']), 201);
+        return $this->successResponse($contacto->fresh()->load(['empresa', 'persona']), 201);
     }
 
     #[OA\Patch(
@@ -89,7 +98,7 @@ class AdministracionController extends Controller
         operationId: 'actualizarEstadoContacto',
         tags: ['Administración'],
         summary: 'Actualizar estado de contacto',
-        description: 'Cambia el estado del proceso. Las fechas se registran automáticamente según el estado.',
+        description: 'Cambia el estado del proceso. Las fechas se registran automáticamente según el estado. Rate limit: 20 solicitudes por minuto por IP.',
         parameters: [
             new OA\Parameter(name: 'contacto', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'), example: '550e8400-e29b-41d4-a716-446655440003'),
         ],
@@ -107,9 +116,18 @@ class AdministracionController extends Controller
             new OA\Response(
                 response: 200,
                 description: 'Estado actualizado',
-                content: new OA\JsonContent(ref: '#/components/schemas/ContactoSolicitado')
+                content: new OA\JsonContent(ref: '#/components/schemas/ContactoSolicitadoResponse')
             ),
-            new OA\Response(response: 404, description: 'Contacto no encontrado'),
+            new OA\Response(
+                response: 404,
+                description: 'Contacto no encontrado',
+                content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
+            ),
+            new OA\Response(
+                response: 422,
+                description: 'Errores de validación',
+                content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
+            ),
         ]
     )]
     public function actualizarEstado(Request $request, string $contacto): JsonResponse
@@ -148,21 +166,12 @@ class AdministracionController extends Controller
         operationId: 'getEstadisticas',
         tags: ['Administración'],
         summary: 'Estadísticas generales de la plataforma',
+        description: 'Dashboard resumido de la plataforma. Rate limit: 60 solicitudes por minuto por IP. Respuesta con Cache-Control de 30 segundos por tratarse de métricas agregadas.',
         responses: [
             new OA\Response(
                 response: 200,
                 description: 'Estadísticas generadas',
-                content: new OA\JsonContent(
-                    properties: [
-                        new OA\Property(property: 'total_personas', type: 'integer', example: 45),
-                        new OA\Property(property: 'personas_validadas', type: 'integer', example: 38),
-                        new OA\Property(property: 'total_empresas', type: 'integer', example: 12),
-                        new OA\Property(property: 'empresas_validadas', type: 'integer', example: 10),
-                        new OA\Property(property: 'contactos_pendientes', type: 'integer', example: 5),
-                        new OA\Property(property: 'contactos_en_proceso', type: 'integer', example: 8),
-                        new OA\Property(property: 'contactos_exitosos', type: 'integer', example: 15),
-                    ]
-                )
+                content: new OA\JsonContent(ref: '#/components/schemas/EstadisticasResponse')
             ),
         ]
     )]
@@ -176,6 +185,6 @@ class AdministracionController extends Controller
             'contactos_pendientes' => ContactoSolicitado::where('estado', 'pendiente')->count(),
             'contactos_en_proceso' => ContactoSolicitado::whereIn('estado', ['contactado', 'entrevista'])->count(),
             'contactos_exitosos' => ContactoSolicitado::where('estado', 'seleccionado')->count(),
-        ]);
+        ], 200, ['Cache-Control' => 'private, max-age=30']);
     }
 }

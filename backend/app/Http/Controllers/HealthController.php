@@ -12,7 +12,7 @@ class HealthController extends Controller
         operationId: 'healthCheck',
         tags: ['Health'],
         summary: 'Verificar estado del servicio',
-        description: 'Endpoint de observabilidad. Verifica que la API está disponible.',
+        description: 'Endpoint de observabilidad. Verifica que la API está disponible. Tiene un rate limit de 120 solicitudes por minuto por IP y encabezado Cache-Control de 15 segundos para reducir consultas repetidas.',
         responses: [
             new OA\Response(
                 response: 200,
@@ -31,6 +31,6 @@ class HealthController extends Controller
             'service' => 'ProviEmplea API',
             'version' => '1.0.0',
             'timestamp' => now()->toIso8601String(),
-        ]);
+        ], 200, ['Cache-Control' => 'public, max-age=15']);
     }
 }

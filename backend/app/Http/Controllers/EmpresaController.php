@@ -15,6 +15,7 @@ class EmpresaController extends Controller
         operationId: 'getEmpresas',
         tags: ['Empresas'],
         summary: 'Listar empresas validadas',
+        description: 'Obtiene empresas activas. Rate limit: 120 solicitudes por minuto por IP. Se recomienda filtrar por tipo cuando se integre desde clientes externos.',
         parameters: [
             new OA\Parameter(name: 'tipo_empresa', in: 'query', required: false, schema: new OA\Schema(type: 'string', enum: ['contratacion-directa', 'est', 'outsourcing'])),
         ],
@@ -22,7 +23,7 @@ class EmpresaController extends Controller
             new OA\Response(
                 response: 200,
                 description: 'Listado exitoso',
-                content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/Empresa'))
+                content: new OA\JsonContent(ref: '#/components/schemas/EmpresaListResponse')
             ),
         ]
     )]
@@ -49,9 +50,13 @@ class EmpresaController extends Controller
             new OA\Response(
                 response: 201,
                 description: 'Empresa creada',
-                content: new OA\JsonContent(ref: '#/components/schemas/Empresa')
+                content: new OA\JsonContent(ref: '#/components/schemas/EmpresaResponse')
             ),
-            new OA\Response(response: 422, description: 'Errores de validación'),
+            new OA\Response(
+                response: 422,
+                description: 'Errores de validación',
+                content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
+            ),
         ]
     )]
     public function store(Request $request): JsonResponse
@@ -83,6 +88,7 @@ class EmpresaController extends Controller
         operationId: 'getEmpresa',
         tags: ['Empresas'],
         summary: 'Obtener empresa por ID',
+        description: 'Consulta de lectura con rate limit de 120 solicitudes por minuto por IP.',
         parameters: [
             new OA\Parameter(name: 'empresa', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'), example: '550e8400-e29b-41d4-a716-446655440001'),
         ],
@@ -90,9 +96,13 @@ class EmpresaController extends Controller
             new OA\Response(
                 response: 200,
                 description: 'Empresa encontrada',
-                content: new OA\JsonContent(ref: '#/components/schemas/Empresa')
+                content: new OA\JsonContent(ref: '#/components/schemas/EmpresaResponse')
             ),
-            new OA\Response(response: 404, description: 'No encontrada'),
+            new OA\Response(
+                response: 404,
+                description: 'No encontrada',
+                content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
+            ),
         ]
     )]
     public function show(string $empresa): JsonResponse
@@ -118,8 +128,21 @@ class EmpresaController extends Controller
             content: new OA\JsonContent(ref: '#/components/schemas/EmpresaInput')
         ),
         responses: [
-            new OA\Response(response: 200, description: 'Empresa actualizada'),
-            new OA\Response(response: 404, description: 'No encontrada'),
+            new OA\Response(
+                response: 200,
+                description: 'Empresa actualizada',
+                content: new OA\JsonContent(ref: '#/components/schemas/EmpresaResponse')
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'No encontrada',
+                content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
+            ),
+            new OA\Response(
+                response: 422,
+                description: 'Errores de validación',
+                content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
+            ),
         ]
     )]
     public function update(Request $request, string $empresa): JsonResponse
@@ -158,12 +181,21 @@ class EmpresaController extends Controller
         operationId: 'validarEmpresa',
         tags: ['Empresas'],
         summary: 'Validar empresa (solo administración)',
+        description: 'Marca una empresa como validada. Rate limit: 30 solicitudes por minuto por IP.',
         parameters: [
             new OA\Parameter(name: 'empresa', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'), example: '550e8400-e29b-41d4-a716-446655440001'),
         ],
         responses: [
-            new OA\Response(response: 200, description: 'Empresa validada'),
-            new OA\Response(response: 404, description: 'No encontrada'),
+            new OA\Response(
+                response: 200,
+                description: 'Empresa validada',
+                content: new OA\JsonContent(ref: '#/components/schemas/EmpresaValidationResponse')
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'No encontrada',
+                content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
+            ),
         ]
     )]
     public function validar(string $empresa): JsonResponse
@@ -182,13 +214,21 @@ class EmpresaController extends Controller
         operationId: 'deleteEmpresa',
         tags: ['Empresas'],
         summary: 'Desactivar empresa',
-        description: 'Desactiva el perfil sin eliminarlo de la base de datos.',
+        description: 'Desactiva el perfil sin eliminarlo de la base de datos. Rate limit: 30 solicitudes por minuto por IP.',
         parameters: [
             new OA\Parameter(name: 'empresa', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'), example: '550e8400-e29b-41d4-a716-446655440001'),
         ],
         responses: [
-            new OA\Response(response: 200, description: 'Empresa desactivada'),
-            new OA\Response(response: 404, description: 'No encontrada'),
+            new OA\Response(
+                response: 200,
+                description: 'Empresa desactivada',
+                content: new OA\JsonContent(ref: '#/components/schemas/MessageResponse')
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'No encontrada',
+                content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
+            ),
         ]
     )]
     public function destroy(string $empresa): JsonResponse
