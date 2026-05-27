@@ -91,7 +91,7 @@ class AdministracionController extends Controller
         summary: 'Actualizar estado de contacto',
         description: 'Cambia el estado del proceso. Las fechas se registran automáticamente según el estado.',
         parameters: [
-            new OA\Parameter(name: 'contacto', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+            new OA\Parameter(name: 'contacto', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'), example: '550e8400-e29b-41d4-a716-446655440003'),
         ],
         requestBody: new OA\RequestBody(
             required: true,
@@ -112,7 +112,7 @@ class AdministracionController extends Controller
             new OA\Response(response: 404, description: 'Contacto no encontrado'),
         ]
     )]
-    public function actualizarEstado(Request $request, int $contacto): JsonResponse
+    public function actualizarEstado(Request $request, string $contacto): JsonResponse
     {
         $model = ContactoSolicitado::find($contacto);
         if (! $model) {

@@ -84,7 +84,7 @@ class EmpresaController extends Controller
         tags: ['Empresas'],
         summary: 'Obtener empresa por ID',
         parameters: [
-            new OA\Parameter(name: 'empresa', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+            new OA\Parameter(name: 'empresa', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'), example: '550e8400-e29b-41d4-a716-446655440001'),
         ],
         responses: [
             new OA\Response(
@@ -95,7 +95,7 @@ class EmpresaController extends Controller
             new OA\Response(response: 404, description: 'No encontrada'),
         ]
     )]
-    public function show(int $empresa): JsonResponse
+    public function show(string $empresa): JsonResponse
     {
         $model = Empresa::find($empresa);
         if (! $model) {
@@ -111,7 +111,7 @@ class EmpresaController extends Controller
         tags: ['Empresas'],
         summary: 'Actualizar empresa',
         parameters: [
-            new OA\Parameter(name: 'empresa', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+            new OA\Parameter(name: 'empresa', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'), example: '550e8400-e29b-41d4-a716-446655440001'),
         ],
         requestBody: new OA\RequestBody(
             required: true,
@@ -122,7 +122,7 @@ class EmpresaController extends Controller
             new OA\Response(response: 404, description: 'No encontrada'),
         ]
     )]
-    public function update(Request $request, int $empresa): JsonResponse
+    public function update(Request $request, string $empresa): JsonResponse
     {
         $model = Empresa::find($empresa);
         if (! $model) {
@@ -159,14 +159,14 @@ class EmpresaController extends Controller
         tags: ['Empresas'],
         summary: 'Validar empresa (solo administración)',
         parameters: [
-            new OA\Parameter(name: 'empresa', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+            new OA\Parameter(name: 'empresa', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'), example: '550e8400-e29b-41d4-a716-446655440001'),
         ],
         responses: [
             new OA\Response(response: 200, description: 'Empresa validada'),
             new OA\Response(response: 404, description: 'No encontrada'),
         ]
     )]
-    public function validar(int $empresa): JsonResponse
+    public function validar(string $empresa): JsonResponse
     {
         $model = Empresa::find($empresa);
         if (! $model) {
@@ -184,14 +184,14 @@ class EmpresaController extends Controller
         summary: 'Desactivar empresa',
         description: 'Desactiva el perfil sin eliminarlo de la base de datos.',
         parameters: [
-            new OA\Parameter(name: 'empresa', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+            new OA\Parameter(name: 'empresa', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'), example: '550e8400-e29b-41d4-a716-446655440001'),
         ],
         responses: [
             new OA\Response(response: 200, description: 'Empresa desactivada'),
             new OA\Response(response: 404, description: 'No encontrada'),
         ]
     )]
-    public function destroy(int $empresa): JsonResponse
+    public function destroy(string $empresa): JsonResponse
     {
         $model = Empresa::find($empresa);
         if (! $model) {

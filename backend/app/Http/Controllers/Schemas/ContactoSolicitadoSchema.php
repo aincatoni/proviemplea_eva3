@@ -11,14 +11,14 @@ use OpenApi\Attributes as OA;
 )]
 class ContactoSolicitadoSchema
 {
-    #[OA\Property(property: 'id', type: 'integer', example: 1)]
-    public int $id;
+    #[OA\Property(property: 'id', type: 'string', format: 'uuid', example: '550e8400-e29b-41d4-a716-446655440003')]
+    public string $id;
 
-    #[OA\Property(property: 'empresa_id', type: 'integer', example: 1)]
-    public int $empresa_id;
+    #[OA\Property(property: 'empresa_id', type: 'string', format: 'uuid', example: '550e8400-e29b-41d4-a716-446655440001')]
+    public string $empresa_id;
 
-    #[OA\Property(property: 'persona_id', type: 'integer', example: 1)]
-    public int $persona_id;
+    #[OA\Property(property: 'persona_id', type: 'string', format: 'uuid', example: '550e8400-e29b-41d4-a716-446655440002')]
+    public string $persona_id;
 
     #[OA\Property(property: 'estado', type: 'string', enum: ['pendiente', 'contactado', 'entrevista', 'seleccionado', 'no-seleccionado', 'proceso-cerrado'], example: 'pendiente')]
     public string $estado;
@@ -55,11 +55,11 @@ class ContactoSolicitadoSchema
 )]
 class ContactoSolicitadoInputSchema
 {
-    #[OA\Property(property: 'empresa_id', type: 'integer', example: 1)]
-    public int $empresa_id;
+    #[OA\Property(property: 'empresa_id', type: 'string', format: 'uuid', example: '550e8400-e29b-41d4-a716-446655440001')]
+    public string $empresa_id;
 
-    #[OA\Property(property: 'persona_id', type: 'integer', example: 1)]
-    public int $persona_id;
+    #[OA\Property(property: 'persona_id', type: 'string', format: 'uuid', example: '550e8400-e29b-41d4-a716-446655440002')]
+    public string $persona_id;
 
     #[OA\Property(property: 'notas_admin', type: 'string', nullable: true)]
     public ?string $notas_admin;

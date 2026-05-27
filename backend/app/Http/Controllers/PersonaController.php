@@ -100,7 +100,7 @@ class PersonaController extends Controller
         tags: ['Personas'],
         summary: 'Obtener persona por ID',
         parameters: [
-            new OA\Parameter(name: 'persona', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+            new OA\Parameter(name: 'persona', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'), example: '550e8400-e29b-41d4-a716-446655440000'),
         ],
         responses: [
             new OA\Response(
@@ -111,7 +111,7 @@ class PersonaController extends Controller
             new OA\Response(response: 404, description: 'No encontrada'),
         ]
     )]
-    public function show(int $persona): JsonResponse
+    public function show(string $persona): JsonResponse
     {
         $model = Persona::find($persona);
         if (! $model) {
@@ -127,7 +127,7 @@ class PersonaController extends Controller
         tags: ['Personas'],
         summary: 'Actualizar persona',
         parameters: [
-            new OA\Parameter(name: 'persona', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+            new OA\Parameter(name: 'persona', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'), example: '550e8400-e29b-41d4-a716-446655440000'),
         ],
         requestBody: new OA\RequestBody(
             required: true,
@@ -138,7 +138,7 @@ class PersonaController extends Controller
             new OA\Response(response: 404, description: 'No encontrada'),
         ]
     )]
-    public function update(Request $request, int $persona): JsonResponse
+    public function update(Request $request, string $persona): JsonResponse
     {
         $model = Persona::find($persona);
         if (! $model) {
@@ -182,14 +182,14 @@ class PersonaController extends Controller
         summary: 'Validar persona (solo administración)',
         description: 'Marca a una persona como validada para que aparezca en la vitrina.',
         parameters: [
-            new OA\Parameter(name: 'persona', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+            new OA\Parameter(name: 'persona', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'), example: '550e8400-e29b-41d4-a716-446655440000'),
         ],
         responses: [
             new OA\Response(response: 200, description: 'Persona validada'),
             new OA\Response(response: 404, description: 'No encontrada'),
         ]
     )]
-    public function validar(int $persona): JsonResponse
+    public function validar(string $persona): JsonResponse
     {
         $model = Persona::find($persona);
         if (! $model) {
@@ -207,14 +207,14 @@ class PersonaController extends Controller
         summary: 'Desactivar persona',
         description: 'Desactiva el perfil sin eliminarlo de la base de datos.',
         parameters: [
-            new OA\Parameter(name: 'persona', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+            new OA\Parameter(name: 'persona', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'), example: '550e8400-e29b-41d4-a716-446655440000'),
         ],
         responses: [
             new OA\Response(response: 200, description: 'Persona desactivada'),
             new OA\Response(response: 404, description: 'No encontrada'),
         ]
     )]
-    public function destroy(int $persona): JsonResponse
+    public function destroy(string $persona): JsonResponse
     {
         $model = Persona::find($persona);
         if (! $model) {

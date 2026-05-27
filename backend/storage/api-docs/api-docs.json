@@ -104,8 +104,10 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "integer"
-                        }
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "example": "550e8400-e29b-41d4-a716-446655440003"
                     }
                 ],
                 "requestBody": {
@@ -290,8 +292,10 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "integer"
-                        }
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "example": "550e8400-e29b-41d4-a716-446655440001"
                     }
                 ],
                 "responses": {
@@ -322,8 +326,10 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "integer"
-                        }
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "example": "550e8400-e29b-41d4-a716-446655440001"
                     }
                 ],
                 "requestBody": {
@@ -358,8 +364,10 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "integer"
-                        }
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "example": "550e8400-e29b-41d4-a716-446655440001"
                     }
                 ],
                 "responses": {
@@ -385,8 +393,10 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "integer"
-                        }
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "example": "550e8400-e29b-41d4-a716-446655440001"
                     }
                 ],
                 "responses": {
@@ -524,8 +534,10 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "integer"
-                        }
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "example": "550e8400-e29b-41d4-a716-446655440000"
                     }
                 ],
                 "responses": {
@@ -556,8 +568,10 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "integer"
-                        }
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "example": "550e8400-e29b-41d4-a716-446655440000"
                     }
                 ],
                 "requestBody": {
@@ -592,8 +606,10 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "integer"
-                        }
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "example": "550e8400-e29b-41d4-a716-446655440000"
                     }
                 ],
                 "responses": {
@@ -620,8 +636,10 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "integer"
-                        }
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "example": "550e8400-e29b-41d4-a716-446655440000"
                     }
                 ],
                 "responses": {
@@ -642,16 +660,19 @@
                 "description": "Solicitud de contacto entre empresa y talento",
                 "properties": {
                     "id": {
-                        "type": "integer",
-                        "example": 1
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "550e8400-e29b-41d4-a716-446655440003"
                     },
                     "empresa_id": {
-                        "type": "integer",
-                        "example": 1
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "550e8400-e29b-41d4-a716-446655440001"
                     },
                     "persona_id": {
-                        "type": "integer",
-                        "example": 1
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "550e8400-e29b-41d4-a716-446655440002"
                     },
                     "estado": {
                         "type": "string",
@@ -709,12 +730,14 @@
                 ],
                 "properties": {
                     "empresa_id": {
-                        "type": "integer",
-                        "example": 1
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "550e8400-e29b-41d4-a716-446655440001"
                     },
                     "persona_id": {
-                        "type": "integer",
-                        "example": 1
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "550e8400-e29b-41d4-a716-446655440002"
                     },
                     "notas_admin": {
                         "type": "string",
@@ -736,8 +759,9 @@
                 ],
                 "properties": {
                     "id": {
-                        "type": "integer",
-                        "example": 1
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "550e8400-e29b-41d4-a716-446655440000"
                     },
                     "nombre_empresa": {
                         "type": "string",
@@ -897,8 +921,9 @@
                 ],
                 "properties": {
                     "id": {
-                        "type": "integer",
-                        "example": 1
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "550e8400-e29b-41d4-a716-446655440000"
                     },
                     "email": {
                         "type": "string",

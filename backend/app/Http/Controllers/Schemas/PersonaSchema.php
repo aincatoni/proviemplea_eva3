@@ -12,8 +12,8 @@ use OpenApi\Attributes as OA;
 )]
 class PersonaSchema
 {
-    #[OA\Property(property: 'id', type: 'integer', example: 1)]
-    public int $id;
+    #[OA\Property(property: 'id', type: 'string', format: 'uuid', example: '550e8400-e29b-41d4-a716-446655440000')]
+    public string $id;
 
     #[OA\Property(property: 'email', type: 'string', format: 'email', example: 'juan@example.com')]
     public string $email;
