@@ -1,0 +1,690 @@
+{
+  "info": {
+    "_postman_id": "b4c30254-c888-403f-b992-7faccc84b1dd",
+    "name": "Desarrollo backend (eva3)",
+    "description": "Coleccion funcional para ProviEmplea EVA3. Genera datos unicos por corrida, encadena UUID entre requests y deja limpieza al final del flujo.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "27966462"
+  },
+  "item": [
+    {
+      "name": "01 Health",
+      "item": [
+        {
+          "name": "GET Health",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Body contiene campos base', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('status');",
+                  "    pm.expect(json).to.have.property('service');",
+                  "    pm.expect(json).to.have.property('version');",
+                  "    pm.expect(json).to.have.property('timestamp');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/health"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "02 Personas",
+      "item": [
+        {
+          "name": "POST Crear persona valida",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var unique = Date.now().toString();",
+                  "pm.collectionVariables.set('personaCreateEmail', 'camila.rojas+' + unique + '@example.com');",
+                  "pm.collectionVariables.set('personaUpdateEmail', 'camila.rojas.actualizada+' + unique + '@example.com');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "var json = pm.response.json();",
+                  "pm.test('Respuesta success con data', function () {",
+                  "    pm.expect(json.success).to.eql(true);",
+                  "    pm.expect(json.data).to.be.an('object');",
+                  "    pm.expect(json.data).to.have.property('id');",
+                  "});",
+                  "",
+                  "pm.collectionVariables.set('personaId', json.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{personaCreateEmail}}\",\n  \"telefono\": \"+56911112222\",\n  \"resumen\": \"Desarrolladora backend con experiencia en APIs REST y Laravel.\",\n  \"nivel_educacional\": \"universitaria\",\n  \"titulo_carrera\": \"Ingenieria en Informatica\",\n  \"anio_egreso\": 2022,\n  \"anios_experiencia\": 3,\n  \"areas_experiencia\": [\"Desarrollo Web\", \"APIs REST\"],\n  \"competencias\": [\"PHP\", \"Laravel\", \"MySQL\"],\n  \"rango_renta\": \"900k-1.2M\",\n  \"tipo_jornada\": \"completa\",\n  \"modalidad\": \"hibrido\",\n  \"cursos\": [{\"nombre\": \"Laravel Avanzado\", \"institucion\": \"Udemy\", \"anio\": 2024}],\n  \"idiomas\": [{\"idioma\": \"Ingles\", \"nivel\": \"intermedio\"}],\n  \"portafolio_url\": \"https://example.com/portafolio-camila\",\n  \"persona_discapacidad\": false\n}"
+            },
+            "url": "{{baseUrl}}/personas"
+          },
+          "response": []
+        },
+        {
+          "name": "GET Obtener persona por id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/personas/{{personaId}}"
+          },
+          "response": []
+        },
+        {
+          "name": "GET Listar personas",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/personas"
+          },
+          "response": []
+        },
+        {
+          "name": "PUT Actualizar persona",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{personaUpdateEmail}}\",\n  \"resumen\": \"Perfil actualizado con foco en integraciones y mantenimiento de APIs.\",\n  \"modalidad\": \"remoto\",\n  \"anios_experiencia\": 4\n}"
+            },
+            "url": "{{baseUrl}}/personas/{{personaId}}"
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH Validar persona",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": "{{baseUrl}}/personas/{{personaId}}/validar"
+          },
+          "response": []
+        },
+        {
+          "name": "POST Crear persona invalida",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 422', function () {",
+                  "    pm.response.to.have.status(422);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"correo-invalido\",\n  \"nivel_educacional\": \"doctorado\",\n  \"portafolio_url\": \"no-es-url\"\n}"
+            },
+            "url": "{{baseUrl}}/personas"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "03 Empresas",
+      "item": [
+        {
+          "name": "POST Crear empresa valida",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var unique = Date.now().toString();",
+                  "var lastSix = unique.slice(-6);",
+                  "pm.collectionVariables.set('empresaCreateEmail', 'contacto+novatalent+' + unique + '@example.com');",
+                  "pm.collectionVariables.set('empresaUpdateEmail', 'contacto+novatalent-actualizada+' + unique + '@example.com');",
+                  "pm.collectionVariables.set('empresaContactoEmail', 'daniela.perez+' + unique + '@example.com');",
+                  "pm.collectionVariables.set('empresaRut', '76' + lastSix + '-7');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "var json = pm.response.json();",
+                  "pm.test('Respuesta success con data', function () {",
+                  "    pm.expect(json.success).to.eql(true);",
+                  "    pm.expect(json.data).to.be.an('object');",
+                  "    pm.expect(json.data).to.have.property('id');",
+                  "});",
+                  "",
+                  "pm.collectionVariables.set('empresaId', json.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre_empresa\": \"NovaTalent SpA\",\n  \"rut_empresa\": \"{{empresaRut}}\",\n  \"email\": \"{{empresaCreateEmail}}\",\n  \"logo_url\": \"https://example.com/logo-novatalent.png\",\n  \"rubro\": \"Tecnologia\",\n  \"tipo_empresa\": \"contratacion-directa\",\n  \"presentacion\": \"Empresa orientada a soluciones digitales y desarrollo de software.\",\n  \"beneficios\": [\"Trabajo remoto\", \"Seguro complementario\"],\n  \"contacto_nombre\": \"Daniela Perez\",\n  \"contacto_email\": \"{{empresaContactoEmail}}\",\n  \"contacto_telefono\": \"+56933334444\"\n}"
+            },
+            "url": "{{baseUrl}}/empresas"
+          },
+          "response": []
+        },
+        {
+          "name": "GET Obtener empresa por id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/empresas/{{empresaId}}"
+          },
+          "response": []
+        },
+        {
+          "name": "GET Listar empresas",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/empresas"
+          },
+          "response": []
+        },
+        {
+          "name": "PUT Actualizar empresa",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{empresaUpdateEmail}}\",\n  \"tipo_empresa\": \"outsourcing\",\n  \"contacto_nombre\": \"Daniela Perez Actualizada\",\n  \"beneficios\": [\"Capacitaciones\", \"Trabajo remoto\"]\n}"
+            },
+            "url": "{{baseUrl}}/empresas/{{empresaId}}"
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH Validar empresa",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": "{{baseUrl}}/empresas/{{empresaId}}/validar"
+          },
+          "response": []
+        },
+        {
+          "name": "POST Crear empresa invalida",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 422', function () {",
+                  "    pm.response.to.have.status(422);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre_empresa\": \"\",\n  \"rut_empresa\": \"\",\n  \"email\": \"correo-invalido\",\n  \"tipo_empresa\": \"otra\",\n  \"contacto_email\": \"no-email\"\n}"
+            },
+            "url": "{{baseUrl}}/empresas"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "04 Administracion",
+      "item": [
+        {
+          "name": "POST Crear contacto valido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "var json = pm.response.json();",
+                  "pm.test('Respuesta success con data', function () {",
+                  "    pm.expect(json.success).to.eql(true);",
+                  "    pm.expect(json.data).to.be.an('object');",
+                  "    pm.expect(json.data).to.have.property('id');",
+                  "});",
+                  "",
+                  "pm.collectionVariables.set('contactoId', json.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"empresa_id\": \"{{empresaId}}\",\n  \"persona_id\": \"{{personaId}}\",\n  \"notas_admin\": \"Perfil alineado con vacante backend.\"\n}"
+            },
+            "url": "{{baseUrl}}/admin/contactos"
+          },
+          "response": []
+        },
+        {
+          "name": "GET Listar contactos pendientes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/admin/contactos?estado=pendiente"
+          },
+          "response": []
+        },
+        {
+          "name": "POST Crear contacto duplicado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 409', function () {",
+                  "    pm.response.to.have.status(409);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"empresa_id\": \"{{empresaId}}\",\n  \"persona_id\": \"{{personaId}}\",\n  \"notas_admin\": \"Intento duplicado para validar conflicto.\"\n}"
+            },
+            "url": "{{baseUrl}}/admin/contactos"
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH Actualizar estado contacto valido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"contactado\",\n  \"notas_admin\": \"Primer contacto realizado por correo.\"\n}"
+            },
+            "url": "{{baseUrl}}/admin/contactos/{{contactoId}}/estado"
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH Actualizar estado contacto invalido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 422', function () {",
+                  "    pm.response.to.have.status(422);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"otro\"\n}"
+            },
+            "url": "{{baseUrl}}/admin/contactos/{{contactoId}}/estado"
+          },
+          "response": []
+        },
+        {
+          "name": "GET Estadisticas",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/admin/estadisticas"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "05 Cleanup",
+      "item": [
+        {
+          "name": "DELETE Desactivar persona",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/personas/{{personaId}}"
+          },
+          "response": []
+        },
+        {
+          "name": "DELETE Desactivar empresa",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/empresas/{{empresaId}}"
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080/api"
+    },
+    {
+      "key": "personaId",
+      "value": ""
+    },
+    {
+      "key": "empresaId",
+      "value": ""
+    },
+    {
+      "key": "contactoId",
+      "value": ""
+    },
+    {
+      "key": "personaCreateEmail",
+      "value": ""
+    },
+    {
+      "key": "personaUpdateEmail",
+      "value": ""
+    },
+    {
+      "key": "empresaCreateEmail",
+      "value": ""
+    },
+    {
+      "key": "empresaUpdateEmail",
+      "value": ""
+    },
+    {
+      "key": "empresaContactoEmail",
+      "value": ""
+    },
+    {
+      "key": "empresaRut",
+      "value": ""
+    }
+  ]
+}
