@@ -32,7 +32,7 @@ docker compose exec app php artisan migrate
 
 ## Swagger / OpenAPI
 
-- Swagger UI: `http://localhost:8000/api/documentation`
+- Swagger UI: `http://localhost:8080/api/documentation`
 - JSON generado: `backend/storage/api-docs/api-docs.json`
 - Regenerar documentacion:
 
@@ -91,7 +91,7 @@ Si necesitas usar otra URL o un comando distinto de reinicio:
 
 ```bash
 cd backend/cliente-api
-PROVIEMPLEA_API_BASE_URL=http://localhost:8000/api \
+PROVIEMPLEA_API_BASE_URL=http://localhost:8080/api \
 PROVIEMPLEA_RESET_COMMAND="php artisan migrate:fresh --force" \
 npm run test:integration
 ```
@@ -195,7 +195,7 @@ Se contrasto la documentacion OpenAPI con el comportamiento real cubierto por fe
 
 ### Plan De Pruebas Manuales En Swagger UI
 
-Usa esta tabla como bitacora para la validacion manual en `http://localhost:8000/api/documentation`.
+Usa esta tabla como bitacora para la validacion manual en `http://localhost:8080/api/documentation`.
 
 | # | Endpoint | Metodo | Datos de prueba | Resultado esperado | Evidencia sugerida |
 | --- | --- | --- | --- | --- | --- |
