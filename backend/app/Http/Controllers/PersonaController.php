@@ -16,7 +16,7 @@ class PersonaController extends Controller
         operationId: 'getPersonas',
         tags: ['Personas'],
         summary: 'Listar personas (CV ciego)',
-        description: 'Obtiene talentos activos en formato de CV ciego (sin datos personales identificables). Rate limit: 120 solicitudes por minuto por IP. Se recomienda aplicar filtros para reducir payload y paginar si el volumen crece.',
+        description: 'Obtiene talentos activos en formato de CV ciego (sin datos personales identificables). Rate limit: 120 solicitudes por minuto por IP. Se recomienda aplicar filtros para reducir payload y paginar si el volumen crece. Tiempo de respuesta esperado: menor a 500 ms en entorno local con baja carga.',
         parameters: [
             new OA\Parameter(name: 'validado', in: 'query', required: false, description: 'Filtrar por validación', schema: new OA\Schema(type: 'boolean')),
             new OA\Parameter(name: 'nivel_educacional', in: 'query', required: false, schema: new OA\Schema(type: 'string', enum: ['basica', 'media', 'tecnica', 'universitaria', 'postgrado'])),
@@ -26,6 +26,11 @@ class PersonaController extends Controller
                 response: 200,
                 description: 'Listado exitoso',
                 content: new OA\JsonContent(ref: '#/components/schemas/PersonaListResponse')
+            ),
+            new OA\Response(
+                response: 429,
+                description: 'Demasiadas solicitudes',
+                content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
             ),
         ]
     )]
@@ -48,7 +53,7 @@ class PersonaController extends Controller
         operationId: 'createPersona',
         tags: ['Personas'],
         summary: 'Registrar nueva persona/talento',
-        description: 'Crea un perfil de talento. El código se genera automáticamente.',
+        description: 'Crea un perfil de talento. El código se genera automáticamente. Tiempo de respuesta esperado: menor a 700 ms en entorno local con baja carga.',
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(ref: '#/components/schemas/PersonaInput')
@@ -62,6 +67,11 @@ class PersonaController extends Controller
             new OA\Response(
                 response: 422,
                 description: 'Errores de validación',
+                content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
+            ),
+            new OA\Response(
+                response: 429,
+                description: 'Demasiadas solicitudes',
                 content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
             ),
         ]
@@ -103,7 +113,7 @@ class PersonaController extends Controller
         operationId: 'getPersona',
         tags: ['Personas'],
         summary: 'Obtener persona por ID',
-        description: 'Consulta de lectura con rate limit de 120 solicitudes por minuto por IP.',
+        description: 'Consulta de lectura con rate limit de 120 solicitudes por minuto por IP. Tiempo de respuesta esperado: menor a 300 ms en entorno local con baja carga.',
         parameters: [
             new OA\Parameter(name: 'persona', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'), example: '550e8400-e29b-41d4-a716-446655440000'),
         ],
@@ -116,6 +126,11 @@ class PersonaController extends Controller
             new OA\Response(
                 response: 404,
                 description: 'No encontrada',
+                content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
+            ),
+            new OA\Response(
+                response: 429,
+                description: 'Demasiadas solicitudes',
                 content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
             ),
         ]
@@ -135,6 +150,7 @@ class PersonaController extends Controller
         operationId: 'updatePersona',
         tags: ['Personas'],
         summary: 'Actualizar persona',
+        description: 'Actualiza parcialmente la informacion del talento y recalcula su porcentaje de completitud. Tiempo de respuesta esperado: menor a 700 ms en entorno local con baja carga.',
         parameters: [
             new OA\Parameter(name: 'persona', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'), example: '550e8400-e29b-41d4-a716-446655440000'),
         ],
@@ -156,6 +172,11 @@ class PersonaController extends Controller
             new OA\Response(
                 response: 422,
                 description: 'Errores de validación',
+                content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
+            ),
+            new OA\Response(
+                response: 429,
+                description: 'Demasiadas solicitudes',
                 content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
             ),
         ]
@@ -202,7 +223,7 @@ class PersonaController extends Controller
         operationId: 'validarPersona',
         tags: ['Personas'],
         summary: 'Validar persona (solo administración)',
-        description: 'Marca a una persona como validada para que aparezca en la vitrina. Rate limit: 30 solicitudes por minuto por IP.',
+        description: 'Marca a una persona como validada para que aparezca en la vitrina. Rate limit: 30 solicitudes por minuto por IP. Tiempo de respuesta esperado: menor a 400 ms en entorno local con baja carga.',
         parameters: [
             new OA\Parameter(name: 'persona', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'), example: '550e8400-e29b-41d4-a716-446655440000'),
         ],
@@ -215,6 +236,11 @@ class PersonaController extends Controller
             new OA\Response(
                 response: 404,
                 description: 'No encontrada',
+                content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
+            ),
+            new OA\Response(
+                response: 429,
+                description: 'Demasiadas solicitudes',
                 content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
             ),
         ]
@@ -235,7 +261,7 @@ class PersonaController extends Controller
         operationId: 'deletePersona',
         tags: ['Personas'],
         summary: 'Desactivar persona',
-        description: 'Desactiva el perfil sin eliminarlo de la base de datos. Rate limit: 30 solicitudes por minuto por IP.',
+        description: 'Desactiva el perfil sin eliminarlo de la base de datos. Rate limit: 30 solicitudes por minuto por IP. Tiempo de respuesta esperado: menor a 400 ms en entorno local con baja carga.',
         parameters: [
             new OA\Parameter(name: 'persona', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'), example: '550e8400-e29b-41d4-a716-446655440000'),
         ],
@@ -248,6 +274,11 @@ class PersonaController extends Controller
             new OA\Response(
                 response: 404,
                 description: 'No encontrada',
+                content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
+            ),
+            new OA\Response(
+                response: 429,
+                description: 'Demasiadas solicitudes',
                 content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
             ),
         ]

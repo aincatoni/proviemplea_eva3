@@ -18,7 +18,7 @@
                     "Administración"
                 ],
                 "summary": "Listar contactos solicitados",
-                "description": "Consulta administrativa de lectura. Rate limit: 60 solicitudes por minuto por IP.",
+                "description": "Consulta administrativa de lectura. Rate limit: 60 solicitudes por minuto por IP. Tiempo de respuesta esperado: menor a 500 ms en entorno local con baja carga.",
                 "operationId": "getContactosSolicitados",
                 "parameters": [
                     {
@@ -48,6 +48,16 @@
                                 }
                             }
                         }
+                    },
+                    "429": {
+                        "description": "Demasiadas solicitudes",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
                     }
                 }
             },
@@ -56,7 +66,7 @@
                     "Administración"
                 ],
                 "summary": "Registrar solicitud de contacto",
-                "description": "Una empresa solicita contactar a un talento. No puede existir una solicitud activa previa. Rate limit: 20 solicitudes por minuto por IP.",
+                "description": "Una empresa solicita contactar a un talento. No puede existir una solicitud activa previa. Rate limit: 20 solicitudes por minuto por IP. Tiempo de respuesta esperado: menor a 700 ms en entorno local con baja carga.",
                 "operationId": "crearContactoSolicitado",
                 "requestBody": {
                     "required": true,
@@ -98,6 +108,16 @@
                                 }
                             }
                         }
+                    },
+                    "429": {
+                        "description": "Demasiadas solicitudes",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -108,7 +128,7 @@
                     "Administración"
                 ],
                 "summary": "Actualizar estado de contacto",
-                "description": "Cambia el estado del proceso. Las fechas se registran automáticamente según el estado. Rate limit: 20 solicitudes por minuto por IP.",
+                "description": "Cambia el estado del proceso. Las fechas se registran automáticamente según el estado. Rate limit: 20 solicitudes por minuto por IP. Tiempo de respuesta esperado: menor a 500 ms en entorno local con baja carga.",
                 "operationId": "actualizarEstadoContacto",
                 "parameters": [
                     {
@@ -182,6 +202,16 @@
                                 }
                             }
                         }
+                    },
+                    "429": {
+                        "description": "Demasiadas solicitudes",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -192,7 +222,7 @@
                     "Administración"
                 ],
                 "summary": "Estadísticas generales de la plataforma",
-                "description": "Dashboard resumido de la plataforma. Rate limit: 60 solicitudes por minuto por IP. Respuesta con Cache-Control de 30 segundos por tratarse de métricas agregadas.",
+                "description": "Dashboard resumido de la plataforma. Rate limit: 60 solicitudes por minuto por IP. Respuesta con Cache-Control de 30 segundos por tratarse de métricas agregadas. Tiempo de respuesta esperado: menor a 400 ms en entorno local con baja carga.",
                 "operationId": "getEstadisticas",
                 "responses": {
                     "200": {
@@ -201,6 +231,16 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/EstadisticasResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Demasiadas solicitudes",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
                                 }
                             }
                         }
@@ -214,7 +254,7 @@
                     "Empresas"
                 ],
                 "summary": "Listar empresas validadas",
-                "description": "Obtiene empresas activas. Rate limit: 120 solicitudes por minuto por IP. Se recomienda filtrar por tipo cuando se integre desde clientes externos.",
+                "description": "Obtiene empresas activas. Rate limit: 120 solicitudes por minuto por IP. Se recomienda filtrar por tipo cuando se integre desde clientes externos. Tiempo de respuesta esperado: menor a 500 ms en entorno local con baja carga.",
                 "operationId": "getEmpresas",
                 "parameters": [
                     {
@@ -241,6 +281,16 @@
                                 }
                             }
                         }
+                    },
+                    "429": {
+                        "description": "Demasiadas solicitudes",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
                     }
                 }
             },
@@ -249,6 +299,7 @@
                     "Empresas"
                 ],
                 "summary": "Registrar nueva empresa",
+                "description": "Registra una empresa y su contacto principal. Tiempo de respuesta esperado: menor a 700 ms en entorno local con baja carga.",
                 "operationId": "createEmpresa",
                 "requestBody": {
                     "required": true,
@@ -280,6 +331,16 @@
                                 }
                             }
                         }
+                    },
+                    "429": {
+                        "description": "Demasiadas solicitudes",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -290,7 +351,7 @@
                     "Empresas"
                 ],
                 "summary": "Obtener empresa por ID",
-                "description": "Consulta de lectura con rate limit de 120 solicitudes por minuto por IP.",
+                "description": "Consulta de lectura con rate limit de 120 solicitudes por minuto por IP. Tiempo de respuesta esperado: menor a 300 ms en entorno local con baja carga.",
                 "operationId": "getEmpresa",
                 "parameters": [
                     {
@@ -324,6 +385,16 @@
                                 }
                             }
                         }
+                    },
+                    "429": {
+                        "description": "Demasiadas solicitudes",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
                     }
                 }
             },
@@ -332,6 +403,7 @@
                     "Empresas"
                 ],
                 "summary": "Actualizar empresa",
+                "description": "Actualiza la informacion de la empresa y su contacto principal. Tiempo de respuesta esperado: menor a 700 ms en entorno local con baja carga.",
                 "operationId": "updateEmpresa",
                 "parameters": [
                     {
@@ -385,6 +457,16 @@
                                 }
                             }
                         }
+                    },
+                    "429": {
+                        "description": "Demasiadas solicitudes",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
                     }
                 }
             },
@@ -393,7 +475,7 @@
                     "Empresas"
                 ],
                 "summary": "Desactivar empresa",
-                "description": "Desactiva el perfil sin eliminarlo de la base de datos. Rate limit: 30 solicitudes por minuto por IP.",
+                "description": "Desactiva el perfil sin eliminarlo de la base de datos. Rate limit: 30 solicitudes por minuto por IP. Tiempo de respuesta esperado: menor a 400 ms en entorno local con baja carga.",
                 "operationId": "deleteEmpresa",
                 "parameters": [
                     {
@@ -427,6 +509,16 @@
                                 }
                             }
                         }
+                    },
+                    "429": {
+                        "description": "Demasiadas solicitudes",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -437,7 +529,7 @@
                     "Empresas"
                 ],
                 "summary": "Validar empresa (solo administración)",
-                "description": "Marca una empresa como validada. Rate limit: 30 solicitudes por minuto por IP.",
+                "description": "Marca una empresa como validada. Rate limit: 30 solicitudes por minuto por IP. Tiempo de respuesta esperado: menor a 400 ms en entorno local con baja carga.",
                 "operationId": "validarEmpresa",
                 "parameters": [
                     {
@@ -471,6 +563,16 @@
                                 }
                             }
                         }
+                    },
+                    "429": {
+                        "description": "Demasiadas solicitudes",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -481,7 +583,7 @@
                     "Health"
                 ],
                 "summary": "Verificar estado del servicio",
-                "description": "Endpoint de observabilidad. Verifica que la API está disponible. Tiene un rate limit de 120 solicitudes por minuto por IP y encabezado Cache-Control de 15 segundos para reducir consultas repetidas.",
+                "description": "Endpoint de observabilidad. Verifica que la API está disponible. Tiene un rate limit de 120 solicitudes por minuto por IP y encabezado Cache-Control de 15 segundos para reducir consultas repetidas. Tiempo de respuesta esperado: menor a 200 ms en entorno local con baja carga.",
                 "operationId": "healthCheck",
                 "responses": {
                     "200": {
@@ -499,6 +601,16 @@
                                 }
                             }
                         }
+                    },
+                    "429": {
+                        "description": "Demasiadas solicitudes",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -509,7 +621,7 @@
                     "Personas"
                 ],
                 "summary": "Listar personas (CV ciego)",
-                "description": "Obtiene talentos activos en formato de CV ciego (sin datos personales identificables). Rate limit: 120 solicitudes por minuto por IP. Se recomienda aplicar filtros para reducir payload y paginar si el volumen crece.",
+                "description": "Obtiene talentos activos en formato de CV ciego (sin datos personales identificables). Rate limit: 120 solicitudes por minuto por IP. Se recomienda aplicar filtros para reducir payload y paginar si el volumen crece. Tiempo de respuesta esperado: menor a 500 ms en entorno local con baja carga.",
                 "operationId": "getPersonas",
                 "parameters": [
                     {
@@ -547,6 +659,16 @@
                                 }
                             }
                         }
+                    },
+                    "429": {
+                        "description": "Demasiadas solicitudes",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
                     }
                 }
             },
@@ -555,7 +677,7 @@
                     "Personas"
                 ],
                 "summary": "Registrar nueva persona/talento",
-                "description": "Crea un perfil de talento. El código se genera automáticamente.",
+                "description": "Crea un perfil de talento. El código se genera automáticamente. Tiempo de respuesta esperado: menor a 700 ms en entorno local con baja carga.",
                 "operationId": "createPersona",
                 "requestBody": {
                     "required": true,
@@ -587,6 +709,16 @@
                                 }
                             }
                         }
+                    },
+                    "429": {
+                        "description": "Demasiadas solicitudes",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -597,7 +729,7 @@
                     "Personas"
                 ],
                 "summary": "Obtener persona por ID",
-                "description": "Consulta de lectura con rate limit de 120 solicitudes por minuto por IP.",
+                "description": "Consulta de lectura con rate limit de 120 solicitudes por minuto por IP. Tiempo de respuesta esperado: menor a 300 ms en entorno local con baja carga.",
                 "operationId": "getPersona",
                 "parameters": [
                     {
@@ -631,6 +763,16 @@
                                 }
                             }
                         }
+                    },
+                    "429": {
+                        "description": "Demasiadas solicitudes",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
                     }
                 }
             },
@@ -639,6 +781,7 @@
                     "Personas"
                 ],
                 "summary": "Actualizar persona",
+                "description": "Actualiza parcialmente la informacion del talento y recalcula su porcentaje de completitud. Tiempo de respuesta esperado: menor a 700 ms en entorno local con baja carga.",
                 "operationId": "updatePersona",
                 "parameters": [
                     {
@@ -692,6 +835,16 @@
                                 }
                             }
                         }
+                    },
+                    "429": {
+                        "description": "Demasiadas solicitudes",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
                     }
                 }
             },
@@ -700,7 +853,7 @@
                     "Personas"
                 ],
                 "summary": "Desactivar persona",
-                "description": "Desactiva el perfil sin eliminarlo de la base de datos. Rate limit: 30 solicitudes por minuto por IP.",
+                "description": "Desactiva el perfil sin eliminarlo de la base de datos. Rate limit: 30 solicitudes por minuto por IP. Tiempo de respuesta esperado: menor a 400 ms en entorno local con baja carga.",
                 "operationId": "deletePersona",
                 "parameters": [
                     {
@@ -734,6 +887,16 @@
                                 }
                             }
                         }
+                    },
+                    "429": {
+                        "description": "Demasiadas solicitudes",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -744,7 +907,7 @@
                     "Personas"
                 ],
                 "summary": "Validar persona (solo administración)",
-                "description": "Marca a una persona como validada para que aparezca en la vitrina. Rate limit: 30 solicitudes por minuto por IP.",
+                "description": "Marca a una persona como validada para que aparezca en la vitrina. Rate limit: 30 solicitudes por minuto por IP. Tiempo de respuesta esperado: menor a 400 ms en entorno local con baja carga.",
                 "operationId": "validarPersona",
                 "parameters": [
                     {
@@ -771,6 +934,16 @@
                     },
                     "404": {
                         "description": "No encontrada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Demasiadas solicitudes",
                         "content": {
                             "application/json": {
                                 "schema": {

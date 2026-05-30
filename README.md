@@ -55,6 +55,46 @@ Resultado de referencia de la sesion anterior:
 - `38 passed`
 - `178 assertions`
 
+## Pruebas Automáticas Con Cliente OpenAPI
+
+Se agregó una suite de integración real usando el cliente generado en `backend/cliente-api` para consumir el backend levantado por Docker.
+
+Cobertura validada con el cliente generado:
+
+- `GET /api/health`
+- flujo CRUD principal de `personas`
+- flujo CRUD principal de `empresas`
+- flujo administrativo de `admin/contactos`
+- `GET /api/admin/estadisticas`
+- respuestas de error `404`, `409` y `422`
+
+Ejecución:
+
+```bash
+cd backend/cliente-api
+npm run test:integration
+```
+
+Consideraciones:
+
+- la suite apunta por defecto a `http://localhost:8080/api`
+- antes de correr, reinicia la base con `docker compose exec -T app php artisan migrate:fresh --force`
+- la suite hace ese reinicio automáticamente por defecto para evitar datos residuales
+- ese proceso borra y recrea la base del contenedor de aplicación
+
+Si necesitas usar otra URL o un comando distinto de reinicio:
+
+```bash
+cd backend/cliente-api
+PROVIEMPLEA_API_BASE_URL=http://localhost:8000/api \
+PROVIEMPLEA_RESET_COMMAND="php artisan migrate:fresh --force" \
+npm run test:integration
+```
+
+Resultado verificado en esta sesión:
+
+- `5 passing`
+
 ## Evidencia De Validacion Con Swagger
 
 Se contrasto la documentacion OpenAPI con el comportamiento real cubierto por feature tests del backend.
@@ -89,6 +129,8 @@ Se agrego rate limiting por IP segun tipo de operacion:
 - Lecturas administrativas: `60 req/min`
 - Escrituras administrativas: `20 req/min`
 
+Las operaciones expuestas en Swagger documentan tambien la posible respuesta `429 Too Many Requests` cuando se supera el limite configurado para cada grupo de rutas.
+
 Se agregaron encabezados `Cache-Control` de corta duracion donde tiene sentido:
 
 - `GET /api/health`: `public, max-age=15`
@@ -98,6 +140,30 @@ Decisiones tecnicas:
 
 - No se cachearon listados CRUD (`personas`, `empresas`, `contactos`) para evitar respuestas obsoletas durante validaciones y cambios de estado.
 - Se recomienda a clientes externos reutilizar resultados de lectura reciente y enviar filtros para reducir payload.
+
+Tiempos de respuesta esperados:
+
+Los siguientes valores son objetivos de respuesta esperados en entorno local/Docker, con baja concurrencia y volumen de datos acotado. No representan una garantia contractual bajo alta carga.
+
+| Endpoint | Tiempo esperado |
+| --- | --- |
+| `GET /api/health` | menor a `200 ms` |
+| `GET /api/personas` | menor a `500 ms` |
+| `POST /api/personas` | menor a `700 ms` |
+| `GET /api/personas/{id}` | menor a `300 ms` |
+| `PUT /api/personas/{id}` | menor a `700 ms` |
+| `PATCH /api/personas/{id}/validar` | menor a `400 ms` |
+| `DELETE /api/personas/{id}` | menor a `400 ms` |
+| `GET /api/empresas` | menor a `500 ms` |
+| `POST /api/empresas` | menor a `700 ms` |
+| `GET /api/empresas/{id}` | menor a `300 ms` |
+| `PUT /api/empresas/{id}` | menor a `700 ms` |
+| `PATCH /api/empresas/{id}/validar` | menor a `400 ms` |
+| `DELETE /api/empresas/{id}` | menor a `400 ms` |
+| `GET /api/admin/contactos` | menor a `500 ms` |
+| `POST /api/admin/contactos` | menor a `700 ms` |
+| `PATCH /api/admin/contactos/{id}/estado` | menor a `500 ms` |
+| `GET /api/admin/estadisticas` | menor a `400 ms` |
 
 ## Endpoints Cubiertos
 

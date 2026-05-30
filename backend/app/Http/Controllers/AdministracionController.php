@@ -17,7 +17,7 @@ class AdministracionController extends Controller
         operationId: 'getContactosSolicitados',
         tags: ['Administración'],
         summary: 'Listar contactos solicitados',
-        description: 'Consulta administrativa de lectura. Rate limit: 60 solicitudes por minuto por IP.',
+        description: 'Consulta administrativa de lectura. Rate limit: 60 solicitudes por minuto por IP. Tiempo de respuesta esperado: menor a 500 ms en entorno local con baja carga.',
         parameters: [
             new OA\Parameter(name: 'estado', in: 'query', required: false, schema: new OA\Schema(type: 'string', enum: ['pendiente', 'contactado', 'entrevista', 'seleccionado', 'no-seleccionado', 'proceso-cerrado'])),
         ],
@@ -26,6 +26,11 @@ class AdministracionController extends Controller
                 response: 200,
                 description: 'Listado exitoso',
                 content: new OA\JsonContent(ref: '#/components/schemas/ContactoSolicitadoListResponse')
+            ),
+            new OA\Response(
+                response: 429,
+                description: 'Demasiadas solicitudes',
+                content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
             ),
         ]
     )]
@@ -44,7 +49,7 @@ class AdministracionController extends Controller
         operationId: 'crearContactoSolicitado',
         tags: ['Administración'],
         summary: 'Registrar solicitud de contacto',
-        description: 'Una empresa solicita contactar a un talento. No puede existir una solicitud activa previa. Rate limit: 20 solicitudes por minuto por IP.',
+        description: 'Una empresa solicita contactar a un talento. No puede existir una solicitud activa previa. Rate limit: 20 solicitudes por minuto por IP. Tiempo de respuesta esperado: menor a 700 ms en entorno local con baja carga.',
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(ref: '#/components/schemas/ContactoSolicitadoInput')
@@ -63,6 +68,11 @@ class AdministracionController extends Controller
             new OA\Response(
                 response: 422,
                 description: 'Errores de validación',
+                content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
+            ),
+            new OA\Response(
+                response: 429,
+                description: 'Demasiadas solicitudes',
                 content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
             ),
         ]
@@ -98,7 +108,7 @@ class AdministracionController extends Controller
         operationId: 'actualizarEstadoContacto',
         tags: ['Administración'],
         summary: 'Actualizar estado de contacto',
-        description: 'Cambia el estado del proceso. Las fechas se registran automáticamente según el estado. Rate limit: 20 solicitudes por minuto por IP.',
+        description: 'Cambia el estado del proceso. Las fechas se registran automáticamente según el estado. Rate limit: 20 solicitudes por minuto por IP. Tiempo de respuesta esperado: menor a 500 ms en entorno local con baja carga.',
         parameters: [
             new OA\Parameter(name: 'contacto', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'), example: '550e8400-e29b-41d4-a716-446655440003'),
         ],
@@ -126,6 +136,11 @@ class AdministracionController extends Controller
             new OA\Response(
                 response: 422,
                 description: 'Errores de validación',
+                content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
+            ),
+            new OA\Response(
+                response: 429,
+                description: 'Demasiadas solicitudes',
                 content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
             ),
         ]
@@ -166,12 +181,17 @@ class AdministracionController extends Controller
         operationId: 'getEstadisticas',
         tags: ['Administración'],
         summary: 'Estadísticas generales de la plataforma',
-        description: 'Dashboard resumido de la plataforma. Rate limit: 60 solicitudes por minuto por IP. Respuesta con Cache-Control de 30 segundos por tratarse de métricas agregadas.',
+        description: 'Dashboard resumido de la plataforma. Rate limit: 60 solicitudes por minuto por IP. Respuesta con Cache-Control de 30 segundos por tratarse de métricas agregadas. Tiempo de respuesta esperado: menor a 400 ms en entorno local con baja carga.',
         responses: [
             new OA\Response(
                 response: 200,
                 description: 'Estadísticas generadas',
                 content: new OA\JsonContent(ref: '#/components/schemas/EstadisticasResponse')
+            ),
+            new OA\Response(
+                response: 429,
+                description: 'Demasiadas solicitudes',
+                content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
             ),
         ]
     )]

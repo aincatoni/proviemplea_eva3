@@ -15,7 +15,7 @@ class EmpresaController extends Controller
         operationId: 'getEmpresas',
         tags: ['Empresas'],
         summary: 'Listar empresas validadas',
-        description: 'Obtiene empresas activas. Rate limit: 120 solicitudes por minuto por IP. Se recomienda filtrar por tipo cuando se integre desde clientes externos.',
+        description: 'Obtiene empresas activas. Rate limit: 120 solicitudes por minuto por IP. Se recomienda filtrar por tipo cuando se integre desde clientes externos. Tiempo de respuesta esperado: menor a 500 ms en entorno local con baja carga.',
         parameters: [
             new OA\Parameter(name: 'tipo_empresa', in: 'query', required: false, schema: new OA\Schema(type: 'string', enum: ['contratacion-directa', 'est', 'outsourcing'])),
         ],
@@ -24,6 +24,11 @@ class EmpresaController extends Controller
                 response: 200,
                 description: 'Listado exitoso',
                 content: new OA\JsonContent(ref: '#/components/schemas/EmpresaListResponse')
+            ),
+            new OA\Response(
+                response: 429,
+                description: 'Demasiadas solicitudes',
+                content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
             ),
         ]
     )]
@@ -42,6 +47,7 @@ class EmpresaController extends Controller
         operationId: 'createEmpresa',
         tags: ['Empresas'],
         summary: 'Registrar nueva empresa',
+        description: 'Registra una empresa y su contacto principal. Tiempo de respuesta esperado: menor a 700 ms en entorno local con baja carga.',
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(ref: '#/components/schemas/EmpresaInput')
@@ -55,6 +61,11 @@ class EmpresaController extends Controller
             new OA\Response(
                 response: 422,
                 description: 'Errores de validación',
+                content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
+            ),
+            new OA\Response(
+                response: 429,
+                description: 'Demasiadas solicitudes',
                 content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
             ),
         ]
@@ -88,7 +99,7 @@ class EmpresaController extends Controller
         operationId: 'getEmpresa',
         tags: ['Empresas'],
         summary: 'Obtener empresa por ID',
-        description: 'Consulta de lectura con rate limit de 120 solicitudes por minuto por IP.',
+        description: 'Consulta de lectura con rate limit de 120 solicitudes por minuto por IP. Tiempo de respuesta esperado: menor a 300 ms en entorno local con baja carga.',
         parameters: [
             new OA\Parameter(name: 'empresa', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'), example: '550e8400-e29b-41d4-a716-446655440001'),
         ],
@@ -101,6 +112,11 @@ class EmpresaController extends Controller
             new OA\Response(
                 response: 404,
                 description: 'No encontrada',
+                content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
+            ),
+            new OA\Response(
+                response: 429,
+                description: 'Demasiadas solicitudes',
                 content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
             ),
         ]
@@ -120,6 +136,7 @@ class EmpresaController extends Controller
         operationId: 'updateEmpresa',
         tags: ['Empresas'],
         summary: 'Actualizar empresa',
+        description: 'Actualiza la informacion de la empresa y su contacto principal. Tiempo de respuesta esperado: menor a 700 ms en entorno local con baja carga.',
         parameters: [
             new OA\Parameter(name: 'empresa', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'), example: '550e8400-e29b-41d4-a716-446655440001'),
         ],
@@ -141,6 +158,11 @@ class EmpresaController extends Controller
             new OA\Response(
                 response: 422,
                 description: 'Errores de validación',
+                content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
+            ),
+            new OA\Response(
+                response: 429,
+                description: 'Demasiadas solicitudes',
                 content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
             ),
         ]
@@ -181,7 +203,7 @@ class EmpresaController extends Controller
         operationId: 'validarEmpresa',
         tags: ['Empresas'],
         summary: 'Validar empresa (solo administración)',
-        description: 'Marca una empresa como validada. Rate limit: 30 solicitudes por minuto por IP.',
+        description: 'Marca una empresa como validada. Rate limit: 30 solicitudes por minuto por IP. Tiempo de respuesta esperado: menor a 400 ms en entorno local con baja carga.',
         parameters: [
             new OA\Parameter(name: 'empresa', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'), example: '550e8400-e29b-41d4-a716-446655440001'),
         ],
@@ -194,6 +216,11 @@ class EmpresaController extends Controller
             new OA\Response(
                 response: 404,
                 description: 'No encontrada',
+                content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
+            ),
+            new OA\Response(
+                response: 429,
+                description: 'Demasiadas solicitudes',
                 content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
             ),
         ]
@@ -214,7 +241,7 @@ class EmpresaController extends Controller
         operationId: 'deleteEmpresa',
         tags: ['Empresas'],
         summary: 'Desactivar empresa',
-        description: 'Desactiva el perfil sin eliminarlo de la base de datos. Rate limit: 30 solicitudes por minuto por IP.',
+        description: 'Desactiva el perfil sin eliminarlo de la base de datos. Rate limit: 30 solicitudes por minuto por IP. Tiempo de respuesta esperado: menor a 400 ms en entorno local con baja carga.',
         parameters: [
             new OA\Parameter(name: 'empresa', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'), example: '550e8400-e29b-41d4-a716-446655440001'),
         ],
@@ -227,6 +254,11 @@ class EmpresaController extends Controller
             new OA\Response(
                 response: 404,
                 description: 'No encontrada',
+                content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
+            ),
+            new OA\Response(
+                response: 429,
+                description: 'Demasiadas solicitudes',
                 content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
             ),
         ]
